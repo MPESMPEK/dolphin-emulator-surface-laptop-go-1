@@ -357,12 +357,27 @@ std::vector<std::string> GetIsoPaths()
 {
   size_t count = MathUtil::SaturatingCast<size_t>(Config::Get(Config::MAIN_ISO_PATH_COUNT));
   std::vector<std::string> paths;
-  paths.reserve(count);
+  paths.reserve(count + 1);
   for (size_t i = 0; i < count; ++i)
   {
     std::string iso_path = Config::Get(MakeISOPathConfigInfo(i));
     if (!iso_path.empty())
       paths.emplace_back(std::move(iso_path));
+  }
+  // Auto-detect local "Games" folder if present so users can just drop games there
+  if (File::IsDirectory("Games"))
+  {
+    bool already_added = false;
+    for (const auto& p : paths)
+    {
+      if (p == "Games" || p == "./Games")
+      {
+        already_added = true;
+        break;
+      }
+    }
+    if (!already_added)
+      paths.emplace_back("Games");
   }
   return paths;
 }
