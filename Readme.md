@@ -1,11 +1,11 @@
 # Dolphin Emulator - Surface Laptop Go 1 Edition
 
-[![Version](https://img.shields.io/badge/Version-v1.2.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
+[![Version](https://img.shields.io/badge/Version-v1.3.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-0078D6.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Hardware](https://img.shields.io/badge/Target-Surface%20Laptop%20Go%201-success.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1)
 [![License](https://img.shields.io/badge/License-GPL%20v2%2B-orange.svg)](COPYING)
 
-> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v1.2.0-surface-go)**  
+> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v1.3.0-surface-go)**  
 > Versi portabel yang sudah terkonfigurasi optimal: cukup ekstrak dan langsung mainkan tanpa perlu instalasi tambahan.
 
 ---
@@ -89,6 +89,15 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
 * **[PERF] Loading Game Super Cepat**: Memaksimalkan `FastDiscSpeed` (bypass batasan 2.6 MB/s drive DVD GameCube/Wii) dan `SyncOnSkipIdle` (melewatkan siklus idle CPU saat loading screen) sehingga loading game berjalan instan.
 * **[DOCS] Rekomendasi Media Penyimpanan**: Menambahkan catatan spesifikasi rekomendasi minimal **NVMe SSD** (bukan eMMC 64GB) agar performa loading game instan dan bebas bottleneck I/O.
 
+### [v1.3.0] - 2026-09-20 (Touch Joystick Overlay untuk Layar Sentuh)
+* **[NEW] On-Screen Touch Joystick**: Aplikasi overlay transparan `TouchJoystick.exe` (166 KB) yang menampilkan kontrol gamepad virtual langsung di layar sentuh Surface Laptop Go 1. Bermain game tanpa perlu keyboard atau joystick fisik!
+* **[NEW] Analog Stick Virtual**: Stick analog di sisi kiri layar dengan dead zone 15%, mendukung 8 arah gerakan halus.
+* **[NEW] Tombol Aksi A/B/X/Y**: Layout diamond ala GameCube controller di sisi kanan layar, responsif dan presisi.
+* **[NEW] Tombol Start + L/R Trigger**: Tombol Start di bawah tengah, L/R trigger di pojok atas untuk kontrol lengkap.
+* **[NEW] Multi-Touch Penuh**: Mendukung sentuhan simultan (tekan tombol sambil gerakkan analog stick secara bersamaan).
+* **[NEW] Auto-Deteksi Touchscreen**: Otomatis mendeteksi ketersediaan layar sentuh via Windows API (`SM_DIGITIZER`). Jika tidak ada touchscreen, aplikasi menampilkan peringatan.
+* **[NEW] Shortcut Keyboard**: Tekan `Ctrl+J` untuk sembunyikan/tampilkan overlay, `Esc` untuk keluar.
+
 ---
 
 ## 5. Cara Menggunakan Build Rilis
@@ -98,3 +107,4 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
 3. Ekstrak file ZIP tersebut ke folder mana saja di laptop Anda (misal: di folder `Documents` atau `Desktop`).
 4. Buka folder dan jalankan **`Dolphin.exe`**.
 5. Tambahkan direktori tempat Anda menyimpan game GameCube / Wii, dan selamat bermain!
+6. **[Opsional — Kontrol Layar Sentuh]**: Jalankan **`TouchJoystick.exe`** sebelum atau sesudah membuka game. Overlay joystick transparan akan muncul di layar sentuh. Tekan `Ctrl+J` untuk sembunyikan/tampilkan, `Esc` untuk menutup.
