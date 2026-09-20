@@ -1,6 +1,6 @@
 # Dolphin Emulator - Surface Laptop Go 1 Edition
 
-[![Version](https://img.shields.io/badge/Version-v1.0.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
+[![Version](https://img.shields.io/badge/Version-v1.1.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-0078D6.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Hardware](https://img.shields.io/badge/Target-Surface%20Laptop%20Go%201-success.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1)
 [![License](https://img.shields.io/badge/License-GPL%20v2%2B-orange.svg)](COPYING)
@@ -68,6 +68,12 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
 ---
 
 ## 4. Riwayat Versi (Changelog)
+
+### [v1.1.0] - 2026-09-20 (Pembaruan Fitur Minor)
+* **[NEW]** Fitur **Folder Game Otomatis (`Games/`)**: Dolphin otomatis memindai dan menampilkan game yang ditaruh di folder `Games/` tanpa perlu import manual (import manual tetap didukung penuh).
+* **[ENHANCEMENT]** Pembaruan logika C++ pada `MainSettings.cpp` (`GetIsoPaths()`) untuk memindai folder lokal `Games/` secara otomatis di level engine.
+* **[CONFIG]** Penambahan `ISOPath0 = Games` dan `RecursiveISOPaths = True` pada `Dolphin.ini`.
+* **[PACKAGE]** Menyertakan folder `Games/` dan panduan `MASUKKAN_GAME_DISINI.txt` di dalam paket rilis ZIP.
 
 ### [v1.0.0] - 2026-09-20 (Rilis Utama Perdana)
 * **[NEW]** Dukungan aspect ratio native 3:2 (`Surface3_2`) untuk resolusi 1536x1024.
