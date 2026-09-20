@@ -314,6 +314,9 @@ if(MSVC)
   # Use 'precise' floating point model
   add_compile_options(/fp:precise)
 
+  # Optimized for Intel Ice Lake (Surface Laptop Go 1) AVX2 / FMA SIMD
+  add_compile_options(/arch:AVX2)
+
   string(APPEND CMAKE_EXE_LINKER_FLAGS " /NXCOMPAT")
   # Generate debug data
   string(APPEND CMAKE_EXE_LINKER_FLAGS " /DEBUG")

@@ -28,6 +28,7 @@ enum class AspectMode : int
   Custom,         // Forced relative custom AR
   CustomStretch,  // Forced absolute custom AR
   Raw,            // Forced squared pixels
+  Surface3_2,     // 3:2 aspect ratio for Microsoft Surface Laptop Go (1536x1024)
 };
 
 enum class StereoMode : int

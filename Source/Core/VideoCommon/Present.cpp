@@ -506,6 +506,11 @@ float Presenter::CalculateDrawAspectRatio(bool allow_stretch) const
     {
       resulting_aspect_ratio = SourceAspectRatioToWidescreen(source_aspect_ratio);
     }
+    else if (aspect_mode == AspectMode::Surface3_2)
+    {
+      // 3:2 Aspect Ratio specifically calibrated for Microsoft Surface Laptop Go (1536x1024)
+      resulting_aspect_ratio = 1.5f;
+    }
     else if (aspect_mode == AspectMode::Custom)
     {
       resulting_aspect_ratio =

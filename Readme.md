@@ -1,4 +1,9 @@
-# Dolphin - A GameCube and Wii Emulator
+# Dolphin - Surface Laptop Go 1 Edition
+
+> **Optimized Fork for Microsoft Surface Laptop Go 1**
+> * **Architecture Target**: Intel Core i5-1035G1 (10th Gen Ice Lake) with `/arch:AVX2` vectorization.
+> * **Display**: Native **3:2 (1536x1024)** aspect ratio support (`Surface3_2` mode) for PixelSense display.
+> * **GPU Tuning**: Driver profiles and presets tailored for Intel UHD Graphics G1 (32 EUs) & Direct3D 12.
 
 [Homepage](https://dolphin-emu.org/) | [Project Site](https://github.com/dolphin-emu/dolphin) | [Buildbot](https://dolphin.ci/) | [Forums](https://forums.dolphin-emu.org/) | [Wiki](https://wiki.dolphin-emu.org/) | [GitHub Wiki](https://github.com/dolphin-emu/dolphin/wiki) | [Issue Tracker](https://bugs.dolphin-emu.org/projects/emulator/issues) | [Coding Style](https://github.com/dolphin-emu/dolphin/blob/master/Contributing.md) | [Transifex Page](https://app.transifex.com/dolphinemu/dolphin-emu/dashboard/) | [Analytics](https://mon.dolphin-emu.org/)
 

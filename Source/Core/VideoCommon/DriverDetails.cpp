@@ -237,6 +237,15 @@ bool HasBug(Bug bug)
   return it->second.m_hasbug;
 }
 
+bool IsSurfaceLaptopGo()
+{
+  if (m_vendor != VENDOR_INTEL)
+    return false;
+  return (m_name.find("UHD Graphics") != std::string::npos ||
+          m_name.find("Iris") != std::string::npos ||
+          m_family == Family::INTEL_GEN11);
+}
+
 #ifdef __clang__
 // Make sure we handle all these switch cases
 #pragma clang diagnostic error "-Wswitch"

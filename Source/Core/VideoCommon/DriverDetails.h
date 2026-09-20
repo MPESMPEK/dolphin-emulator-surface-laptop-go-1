@@ -362,4 +362,7 @@ bool HasBug(Bug bug);
 
 // Overrides the current state of a bug
 void OverrideBug(Bug bug, bool new_value);
+
+// Check if running on Surface Laptop Go or Intel Ice Lake UHD Graphics
+bool IsSurfaceLaptopGo();
 }  // namespace DriverDetails
