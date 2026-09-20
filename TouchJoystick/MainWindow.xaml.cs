@@ -8,9 +8,17 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace TouchJoystick
 {
+    public enum ControllerLayout
+    {
+        GameCube,
+        WiiRemote,
+        PlayStation
+    }
+
     public partial class MainWindow : Window
     {
         // ── Win32 Imports ──
@@ -25,6 +33,20 @@ namespace TouchJoystick
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("kernel32.dll")]
+        private static extern bool GetSystemPowerStatus(out SYSTEM_POWER_STATUS lpSystemPowerStatus);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SYSTEM_POWER_STATUS
+        {
+            public byte ACLineStatus; // 0 = Battery, 1 = AC, 255 = Unknown
+            public byte BatteryFlag;
+            public byte BatteryLifePercent;
+            public byte SystemStatusFlag;
+            public int BatteryLifeTime;
+            public int BatteryFullLifeTime;
+        }
 
         private const int GWL_EXSTYLE = -20;
         private const int WS_EX_TOOLWINDOW = 0x00000080;
@@ -60,61 +82,68 @@ namespace TouchJoystick
         private const uint KEYEVENTF_KEYDOWN = 0x0000;
         private const uint KEYEVENTF_KEYUP = 0x0002;
 
-        // Virtual key codes matching Dolphin's default keyboard mappings
+        // Virtual Key Codes
         private const ushort VK_UP = 0x26;
         private const ushort VK_DOWN = 0x28;
         private const ushort VK_LEFT = 0x25;
         private const ushort VK_RIGHT = 0x27;
-        private const ushort VK_X = 0x58;      // A button
-        private const ushort VK_Z = 0x5A;      // B button
-        private const ushort VK_S = 0x53;      // X button
-        private const ushort VK_A = 0x41;      // Y button
-        private const ushort VK_RETURN = 0x0D; // Start
-        private const ushort VK_Q = 0x51;      // L trigger
-        private const ushort VK_W = 0x57;      // R trigger
+        private const ushort VK_RETURN = 0x0D; // Enter / Start
+        private const ushort VK_SPACE = 0x20;  // Space / Select
+        private const ushort VK_TAB = 0x09;    // Tab / Turbo
+        private const ushort VK_F1 = 0x70;     // Save state
+        private const ushort VK_F8 = 0x77;     // Load state
 
-        // ── Process Management ──
-        private Process? _dolphinProcess;
+        // GameCube / Dolphin keys
+        private const ushort VK_X = 0x58;      // A
+        private const ushort VK_Z = 0x5A;      // B
+        private const ushort VK_S = 0x53;      // X
+        private const ushort VK_A = 0x41;      // Y
+        private const ushort VK_Q = 0x51;      // L
+        private const ushort VK_W = 0x57;      // R
+        private const ushort VK_I = 0x49;      // C-Stick Up
+        private const ushort VK_K = 0x4B;      // C-Stick Down
+        private const ushort VK_J = 0x4A;      // C-Stick Left
+        private const ushort VK_L = 0x4C;      // C-Stick Right
 
-        // ── UI Elements ──
-        private Canvas? _controlsContainer;
-        private Ellipse _stickBase = null!;
-        private Ellipse _stickKnob = null!;
-        private readonly Dictionary<string, Ellipse> _buttons = new();
-        private readonly Dictionary<string, Border> _buttonLabels = new();
-        private Ellipse _startBtn = null!;
-        private Ellipse _lBtn = null!;
-        private Ellipse _rBtn = null!;
-        private Border _togglePill = null!;
+        // Wii keys
+        private const ushort VK_1 = 0x31;      // 1
+        private const ushort VK_2 = 0x32;      // 2
 
-        // ── Touch State ──
+        // ── Active State ──
+        private Process? _activeProcess;
+        private ControllerLayout _currentLayout = ControllerLayout.GameCube;
+        private double _globalOpacity = 0.6;
+        private double _globalScale = 1.0;
+        private bool _controlsVisible = true;
+        private DispatcherTimer? _batteryTimer;
+
+        // ── Touch Handling ──
         private int _stickTouchId = -1;
         private Point _stickCenter;
-        private readonly double _stickRadius = 75;
-        private readonly double _knobRadius = 32;
+        private double _stickRadius = 75;
+        private double _knobRadius = 32;
         private readonly double _deadZone = 0.15;
+        private Ellipse? _stickKnob;
+
+        private int _cStickTouchId = -1;
+        private Point _cStickCenter;
+        private double _cStickRadius = 55;
+        private double _cKnobRadius = 24;
+        private Ellipse? _cStickKnob;
 
         private bool _keyUp, _keyDown, _keyLeft, _keyRight;
-        private readonly Dictionary<string, bool> _buttonPressed = new()
-        {
-            {"A", false}, {"B", false}, {"X", false}, {"Y", false},
-            {"Start", false}, {"L", false}, {"R", false}
-        };
-        private readonly Dictionary<string, int> _buttonTouchIds = new()
-        {
-            {"A", -1}, {"B", -1}, {"X", -1}, {"Y", -1},
-            {"Start", -1}, {"L", -1}, {"R", -1}
-        };
+        private bool _cKeyUp, _cKeyDown, _cKeyLeft, _cKeyRight;
 
-        private bool _controlsVisible = true;
+        private class TouchButtonInfo
+        {
+            public string Name = "";
+            public ushort Vk;
+            public Ellipse Visual = null!;
+            public int TouchId = -1;
+            public bool IsPressed = false;
+        }
 
-        // ── Brushes ──
-        private readonly SolidColorBrush _baseBrush = new(Color.FromArgb(50, 255, 255, 255));
-        private readonly SolidColorBrush _knobBrush = new(Color.FromArgb(130, 0, 180, 255));
-        private readonly SolidColorBrush _btnBrush = new(Color.FromArgb(60, 255, 255, 255));
-        private readonly SolidColorBrush _btnPressedBrush = new(Color.FromArgb(160, 0, 180, 255));
-        private readonly SolidColorBrush _borderBrush = new(Color.FromArgb(120, 255, 255, 255));
-        private readonly SolidColorBrush _textBrush = new(Color.FromArgb(220, 255, 255, 255));
+        private readonly List<TouchButtonInfo> _activeButtons = new();
 
         public MainWindow()
         {
@@ -122,13 +151,17 @@ namespace TouchJoystick
 
             Loaded += OnLoaded;
 
-            // Global keyboard shortcuts
             KeyDown += (s, e) =>
             {
                 if (e.Key == Key.J && Keyboard.Modifiers == ModifierKeys.Control)
-                    ToggleControlsVisibility();
+                    ToggleControls();
                 else if (e.Key == Key.Escape)
-                    ToggleControlsVisibility();
+                {
+                    if (OverlayCanvas.Visibility == Visibility.Visible)
+                        SwitchToHub();
+                    else
+                        Close();
+                }
             };
         }
 
@@ -138,269 +171,573 @@ namespace TouchJoystick
             var exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
             SetWindowLong(hwnd, GWL_EXSTYLE, new IntPtr(exStyle.ToInt64() | WS_EX_TOOLWINDOW));
 
-            // 1. Launch / Attach Dolphin
-            LaunchOrAttachDolphin();
+            // Setup Touch Events on Overlay
+            OverlayCanvas.TouchDown += Overlay_TouchDown;
+            OverlayCanvas.TouchMove += Overlay_TouchMove;
+            OverlayCanvas.TouchUp += Overlay_TouchUp;
 
-            // 2. Check Touchscreen
-            int digitizer = GetSystemMetrics(SM_DIGITIZER);
-            bool hasTouch = (digitizer & NID_MULTI_INPUT) != 0 && (digitizer & NID_READY) != 0;
+            // Setup Battery Monitor
+            InitBatteryMonitor();
 
-            if (hasTouch)
+            // Center GameBar
+            double screenW = SystemParameters.PrimaryScreenWidth;
+            Canvas.SetLeft(GameBar, (screenW - 550) / 2);
+            Canvas.SetLeft(SettingsDrawer, (screenW - 320) / 2);
+
+            // Default view is Hub
+            SwitchToHub();
+        }
+
+        // ══════════════════════════════════════════════════════
+        // NAVIGATION & VIEWS
+        // ══════════════════════════════════════════════════════
+
+        private void SwitchToHub()
+        {
+            HubContainer.Visibility = Visibility.Visible;
+            OverlayCanvas.Visibility = Visibility.Collapsed;
+            Topmost = false;
+        }
+
+        private void SwitchToOverlay()
+        {
+            HubContainer.Visibility = Visibility.Collapsed;
+            OverlayCanvas.Visibility = Visibility.Visible;
+            Topmost = true;
+            RenderCurrentLayout();
+        }
+
+        private void BtnCloseHub_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void BtnStartOverlayOnly_Click(object sender, RoutedEventArgs e)
+        {
+            SwitchToOverlay();
+        }
+
+        private void BtnBackToHub_Click(object sender, RoutedEventArgs e)
+        {
+            SwitchToHub();
+        }
+
+        // ══════════════════════════════════════════════════════
+        // EMULATOR LAUNCHERS
+        // ══════════════════════════════════════════════════════
+
+        private void LaunchDolphin_Click(object sender, MouseButtonEventArgs e)
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string dolphinExe = System.IO.Path.Combine(baseDir, "Dolphin.exe");
+
+            if (!File.Exists(dolphinExe))
             {
-                CreateControls();
+                string parentDir = Directory.GetParent(baseDir)?.FullName ?? baseDir;
+                string alt = System.IO.Path.Combine(parentDir, "Dolphin-x64", "Dolphin.exe");
+                if (File.Exists(alt)) dolphinExe = alt;
+            }
 
-                OverlayCanvas.TouchDown += Canvas_TouchDown;
-                OverlayCanvas.TouchMove += Canvas_TouchMove;
-                OverlayCanvas.TouchUp += Canvas_TouchUp;
+            if (File.Exists(dolphinExe))
+            {
+                StartEmulatorProcess(dolphinExe, ControllerLayout.GameCube);
             }
             else
             {
-                // Non-touch device: hide overlay but keep monitoring Dolphin
-                Visibility = Visibility.Hidden;
+                MessageBox.Show("Dolphin.exe siap pakai ditemukan di folder Dolphin-x64.", "Dolphin", MessageBoxButton.OK, MessageBoxImage.Information);
+                SwitchToOverlay();
             }
         }
 
-        private void LaunchOrAttachDolphin()
+        private void LaunchPcsx2_Click(object sender, MouseButtonEventArgs e)
+        {
+            TryLaunchEmulator("PCSX2", "pcsx2.exe", ControllerLayout.PlayStation);
+        }
+
+        private void LaunchDuckStation_Click(object sender, MouseButtonEventArgs e)
+        {
+            TryLaunchEmulator("DuckStation", "duckstation-qt-x64-ReleaseLTCG.exe", ControllerLayout.PlayStation);
+        }
+
+        private void LaunchPpsspp_Click(object sender, MouseButtonEventArgs e)
+        {
+            TryLaunchEmulator("PPSSPP", "PPSSPPWindows64.exe", ControllerLayout.PlayStation);
+        }
+
+        private void LaunchRetroArch_Click(object sender, MouseButtonEventArgs e)
+        {
+            TryLaunchEmulator("RetroArch", "retroarch.exe", ControllerLayout.WiiRemote);
+        }
+
+        private void TryLaunchEmulator(string name, string exeName, ControllerLayout defaultLayout)
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string localPath = System.IO.Path.Combine(baseDir, exeName);
+
+            if (File.Exists(localPath))
+            {
+                StartEmulatorProcess(localPath, defaultLayout);
+                return;
+            }
+
+            // Search typical locations
+            string docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var candidates = new[]
+            {
+                System.IO.Path.Combine(docs, name, exeName),
+                System.IO.Path.Combine(@"C:\Program Files", name, exeName),
+                System.IO.Path.Combine(@"C:\Program Files (x86)", name, exeName)
+            };
+
+            foreach (var path in candidates)
+            {
+                if (File.Exists(path))
+                {
+                    StartEmulatorProcess(path, defaultLayout);
+                    return;
+                }
+            }
+
+            var res = MessageBox.Show(
+                $"{name} belum terdeteksi di folder emulator.\n\nApakah Anda ingin tetap membuka overlay joystick layar sentuh dengan layout {defaultLayout}?",
+                $"{name} Hub", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (res == MessageBoxResult.Yes)
+            {
+                _currentLayout = defaultLayout;
+                SwitchToOverlay();
+            }
+        }
+
+        private void StartEmulatorProcess(string exePath, ControllerLayout layout)
         {
             try
             {
-                var existingProcesses = Process.GetProcessesByName("Dolphin");
-                if (existingProcesses.Length > 0)
+                _currentLayout = layout;
+                var info = new ProcessStartInfo
                 {
-                    _dolphinProcess = existingProcesses[0];
-                }
-                else
+                    FileName = exePath,
+                    WorkingDirectory = System.IO.Path.GetDirectoryName(exePath)!
+                };
+                _activeProcess = Process.Start(info);
+                if (_activeProcess != null)
                 {
-                    string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                    string dolphinExe = System.IO.Path.Combine(baseDir, "Dolphin.exe");
-
-                    if (!File.Exists(dolphinExe))
+                    _activeProcess.EnableRaisingEvents = true;
+                    _activeProcess.Exited += (s, ev) =>
                     {
-                        // Search in adjacent folders if any
-                        string parentDir = Directory.GetParent(baseDir)?.FullName ?? baseDir;
-                        string altDolphin = System.IO.Path.Combine(parentDir, "Dolphin-x64", "Dolphin.exe");
-                        if (File.Exists(altDolphin))
-                            dolphinExe = altDolphin;
-                    }
-
-                    if (File.Exists(dolphinExe))
-                    {
-                        var startInfo = new ProcessStartInfo
+                        Dispatcher.Invoke(() =>
                         {
-                            FileName = dolphinExe,
-                            WorkingDirectory = System.IO.Path.GetDirectoryName(dolphinExe)!
-                        };
-                        _dolphinProcess = Process.Start(startInfo);
-                    }
-                }
-
-                if (_dolphinProcess != null)
-                {
-                    _dolphinProcess.EnableRaisingEvents = true;
-                    _dolphinProcess.Exited += (s, ev) =>
-                    {
-                        Dispatcher.Invoke(() => Application.Current.Shutdown());
+                            _activeProcess = null;
+                            SwitchToHub();
+                        });
                     };
                 }
+                SwitchToOverlay();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Dolphin-Surface] Error managing Dolphin process: {ex.Message}");
+                MessageBox.Show($"Gagal menjalankan emulator: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void CreateControls()
+        // ══════════════════════════════════════════════════════
+        // IN-GAME QUICK TOUCH GAMEBAR
+        // ══════════════════════════════════════════════════════
+
+        private void BtnToggleControls_Click(object sender, RoutedEventArgs e)
         {
-            double w = OverlayCanvas.ActualWidth > 0 ? OverlayCanvas.ActualWidth : SystemParameters.PrimaryScreenWidth;
-            double h = OverlayCanvas.ActualHeight > 0 ? OverlayCanvas.ActualHeight : SystemParameters.PrimaryScreenHeight;
+            ToggleControls();
+        }
 
-            _controlsContainer = new Canvas
-            {
-                Width = w,
-                Height = h,
-                Background = Brushes.Transparent,
-                IsHitTestVisible = true
-            };
-            OverlayCanvas.Children.Add(_controlsContainer);
+        private void ToggleControls()
+        {
+            _controlsVisible = !_controlsVisible;
+            ControllerCanvas.Opacity = _controlsVisible ? 1.0 : 0.0;
+            BtnToggleControls.Content = _controlsVisible ? "🎮 Kontrol" : "👁️ Tampilkan";
+        }
 
-            // ── Top Center: Touch Toggle Pill (so user can toggle controls without a keyboard) ──
-            double pillW = 80;
-            double pillH = 28;
-            _togglePill = new Border
-            {
-                Width = pillW,
-                Height = pillH,
-                CornerRadius = new CornerRadius(14),
-                Background = new SolidColorBrush(Color.FromArgb(70, 0, 0, 0)),
-                BorderBrush = _borderBrush,
-                BorderThickness = new Thickness(1),
-                IsHitTestVisible = true,
-                Child = new TextBlock
-                {
-                    Text = "🎮 Touch",
-                    Foreground = _textBrush,
-                    FontSize = 12,
-                    FontWeight = FontWeights.SemiBold,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                }
-            };
-            Canvas.SetLeft(_togglePill, (w - pillW) / 2);
-            Canvas.SetTop(_togglePill, 12);
-            _togglePill.TouchDown += (s, e) =>
-            {
-                ToggleControlsVisibility();
-                e.Handled = true;
-            };
-            _togglePill.MouseDown += (s, e) =>
-            {
-                ToggleControlsVisibility();
-                e.Handled = true;
-            };
-            OverlayCanvas.Children.Add(_togglePill);
+        private void BtnSaveState_Click(object sender, RoutedEventArgs e)
+        {
+            SendSingleKey(VK_F1);
+            ShowNotification("💾 Save State Disimpan (F1)");
+        }
 
-            // ── Left: Analog Stick ──
-            double stickX = 140;
-            double stickY = h - 180;
+        private void BtnLoadState_Click(object sender, RoutedEventArgs e)
+        {
+            SendSingleKey(VK_F8);
+            ShowNotification("📂 Load State Dimuat (F8)");
+        }
+
+        private void BtnTurbo_Click(object sender, RoutedEventArgs e)
+        {
+            SendSingleKey(VK_TAB);
+            ShowNotification("⏩ Kecepatan Turbo Dialihkan (Tab)");
+        }
+
+        private void BtnSettingsDrawer_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsDrawer.Visibility = SettingsDrawer.Visibility == Visibility.Visible
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+        }
+
+        private void ShowNotification(string msg)
+        {
+            // Update button or indicator
+            BtnToggleControls.Content = msg;
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+            timer.Tick += (s, ev) =>
+            {
+                BtnToggleControls.Content = _controlsVisible ? "🎮 Kontrol" : "👁️ Tampilkan";
+                timer.Stop();
+            };
+            timer.Start();
+        }
+
+        // ══════════════════════════════════════════════════════
+        // DYNAMIC TOUCH CONTROLLER LAYOUTS
+        // ══════════════════════════════════════════════════════
+
+        private void SetLayoutGC_Click(object sender, RoutedEventArgs e)
+        {
+            _currentLayout = ControllerLayout.GameCube;
+            UpdateLayoutButtons();
+            RenderCurrentLayout();
+        }
+
+        private void SetLayoutWii_Click(object sender, RoutedEventArgs e)
+        {
+            _currentLayout = ControllerLayout.WiiRemote;
+            UpdateLayoutButtons();
+            RenderCurrentLayout();
+        }
+
+        private void SetLayoutPS_Click(object sender, RoutedEventArgs e)
+        {
+            _currentLayout = ControllerLayout.PlayStation;
+            UpdateLayoutButtons();
+            RenderCurrentLayout();
+        }
+
+        private void UpdateLayoutButtons()
+        {
+            var activeBg = new SolidColorBrush(Color.FromRgb(0, 229, 255));
+            var idleBg = new SolidColorBrush(Color.FromRgb(38, 43, 59));
+            var activeFg = new SolidColorBrush(Color.FromRgb(15, 17, 23));
+            var idleFg = Brushes.White;
+
+            BtnLayoutGC.Background = _currentLayout == ControllerLayout.GameCube ? activeBg : idleBg;
+            BtnLayoutGC.Foreground = _currentLayout == ControllerLayout.GameCube ? activeFg : idleFg;
+
+            BtnLayoutWii.Background = _currentLayout == ControllerLayout.WiiRemote ? activeBg : idleBg;
+            BtnLayoutWii.Foreground = _currentLayout == ControllerLayout.WiiRemote ? activeFg : idleFg;
+
+            BtnLayoutPS.Background = _currentLayout == ControllerLayout.PlayStation ? activeBg : idleBg;
+            BtnLayoutPS.Foreground = _currentLayout == ControllerLayout.PlayStation ? activeFg : idleFg;
+        }
+
+        private void SliderOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (TxtOpacity == null) return;
+            _globalOpacity = e.NewValue;
+            TxtOpacity.Text = $"Transparansi Tombol: {(int)(_globalOpacity * 100)}%";
+            RenderCurrentLayout();
+        }
+
+        private void SliderScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (TxtScale == null) return;
+            _globalScale = e.NewValue;
+            TxtScale.Text = $"Ukuran Tombol: {(int)(_globalScale * 100)}%";
+            RenderCurrentLayout();
+        }
+
+        private void RenderCurrentLayout()
+        {
+            ControllerCanvas.Children.Clear();
+            _activeButtons.Clear();
+
+            double w = SystemParameters.PrimaryScreenWidth;
+            double h = SystemParameters.PrimaryScreenHeight;
+
+            byte alpha = (byte)(_globalOpacity * 255);
+            byte pressedAlpha = (byte)Math.Min(255, alpha + 80);
+
+            var baseBrush = new SolidColorBrush(Color.FromArgb((byte)(alpha * 0.5), 255, 255, 255));
+            var knobBrush = new SolidColorBrush(Color.FromArgb(alpha, 0, 200, 255));
+            var borderBrush = new SolidColorBrush(Color.FromArgb(alpha, 255, 255, 255));
+
+            if (_currentLayout == ControllerLayout.GameCube)
+            {
+                RenderGameCubeLayout(w, h, baseBrush, knobBrush, borderBrush, alpha);
+            }
+            else if (_currentLayout == ControllerLayout.WiiRemote)
+            {
+                RenderWiiRemoteLayout(w, h, baseBrush, knobBrush, borderBrush, alpha);
+            }
+            else if (_currentLayout == ControllerLayout.PlayStation)
+            {
+                RenderPlayStationLayout(w, h, baseBrush, knobBrush, borderBrush, alpha);
+            }
+        }
+
+        private void RenderGameCubeLayout(double w, double h, Brush baseBrush, Brush knobBrush, Brush borderBrush, byte alpha)
+        {
+            // Left: Analog Stick
+            _stickRadius = 75 * _globalScale;
+            _knobRadius = 32 * _globalScale;
+            double stickX = 140 * _globalScale;
+            double stickY = h - (170 * _globalScale);
             _stickCenter = new Point(stickX, stickY);
 
-            _stickBase = new Ellipse
+            var stickBase = new Ellipse
             {
                 Width = _stickRadius * 2,
                 Height = _stickRadius * 2,
-                Fill = _baseBrush,
-                Stroke = _borderBrush,
-                StrokeThickness = 2,
-                IsHitTestVisible = true
+                Fill = baseBrush,
+                Stroke = borderBrush,
+                StrokeThickness = 2
             };
-            Canvas.SetLeft(_stickBase, stickX - _stickRadius);
-            Canvas.SetTop(_stickBase, stickY - _stickRadius);
-            _controlsContainer.Children.Add(_stickBase);
+            Canvas.SetLeft(stickBase, stickX - _stickRadius);
+            Canvas.SetTop(stickBase, stickY - _stickRadius);
+            ControllerCanvas.Children.Add(stickBase);
 
             _stickKnob = new Ellipse
             {
                 Width = _knobRadius * 2,
                 Height = _knobRadius * 2,
-                Fill = _knobBrush,
-                Stroke = _borderBrush,
+                Fill = knobBrush,
+                Stroke = borderBrush,
                 StrokeThickness = 1.5,
                 IsHitTestVisible = false
             };
             Canvas.SetLeft(_stickKnob, stickX - _knobRadius);
             Canvas.SetTop(_stickKnob, stickY - _knobRadius);
-            _controlsContainer.Children.Add(_stickKnob);
+            ControllerCanvas.Children.Add(_stickKnob);
 
-            // ── Right: A/B/X/Y Buttons (GameCube diamond layout) ──
-            double btnCenterX = w - 140;
-            double btnCenterY = h - 180;
-            double spacing = 65;
+            // Right: Diamond A/B/X/Y
+            double btnCenterX = w - (140 * _globalScale);
+            double btnCenterY = h - (170 * _globalScale);
+            double spacing = 65 * _globalScale;
+            double btnSize = 58 * _globalScale;
 
-            CreateButton("A", btnCenterX, btnCenterY + spacing, "A");
-            CreateButton("B", btnCenterX - spacing, btnCenterY, "B");
-            CreateButton("X", btnCenterX + spacing, btnCenterY, "X");
-            CreateButton("Y", btnCenterX, btnCenterY - spacing, "Y");
+            AddButton("A", btnCenterX, btnCenterY + spacing, btnSize, VK_X, "A", alpha);
+            AddButton("B", btnCenterX - spacing, btnCenterY, btnSize, VK_Z, "B", alpha);
+            AddButton("X", btnCenterX + spacing, btnCenterY, btnSize, VK_S, "X", alpha);
+            AddButton("Y", btnCenterX, btnCenterY - spacing, btnSize, VK_A, "Y", alpha);
 
-            // ── Start Button (Center Bottom) ──
-            double startX = w / 2;
-            double startY = h - 60;
-            _startBtn = new Ellipse
+            // Mini C-Stick
+            _cStickRadius = 50 * _globalScale;
+            _cKnobRadius = 22 * _globalScale;
+            double cStickX = btnCenterX - (spacing * 1.5);
+            double cStickY = btnCenterY + (spacing * 1.2);
+            _cStickCenter = new Point(cStickX, cStickY);
+
+            var cStickBase = new Ellipse
             {
-                Width = 46,
-                Height = 46,
-                Fill = _btnBrush,
-                Stroke = _borderBrush,
-                StrokeThickness = 1.5,
-                IsHitTestVisible = true,
-                Tag = "Start"
+                Width = _cStickRadius * 2,
+                Height = _cStickRadius * 2,
+                Fill = baseBrush,
+                Stroke = borderBrush,
+                StrokeThickness = 1.5
             };
-            Canvas.SetLeft(_startBtn, startX - 23);
-            Canvas.SetTop(_startBtn, startY - 23);
-            _controlsContainer.Children.Add(_startBtn);
+            Canvas.SetLeft(cStickBase, cStickX - _cStickRadius);
+            Canvas.SetTop(cStickBase, cStickY - _cStickRadius);
+            ControllerCanvas.Children.Add(cStickBase);
 
-            var startLabel = CreateLabel("▶", startX, startY, 46);
-            _controlsContainer.Children.Add(startLabel);
+            _cStickKnob = new Ellipse
+            {
+                Width = _cKnobRadius * 2,
+                Height = _cKnobRadius * 2,
+                Fill = new SolidColorBrush(Color.FromArgb(alpha, 255, 215, 0)),
+                Stroke = borderBrush,
+                StrokeThickness = 1.5,
+                IsHitTestVisible = false
+            };
+            Canvas.SetLeft(_cStickKnob, cStickX - _cKnobRadius);
+            Canvas.SetTop(_cStickKnob, cStickY - _cKnobRadius);
+            ControllerCanvas.Children.Add(_cStickKnob);
 
-            // ── L/R Triggers (Top Corners) ──
-            _lBtn = CreateTriggerButton("L", 100, 50, "L");
-            _rBtn = CreateTriggerButton("R", w - 100, 50, "R");
+            // Start & Triggers
+            AddButton("Start", w / 2, h - (50 * _globalScale), 48 * _globalScale, VK_RETURN, "▶", alpha);
+            AddTriggerButton("L", 100 * _globalScale, 70, 75 * _globalScale, 42 * _globalScale, VK_Q, "L", alpha);
+            AddTriggerButton("R", w - (100 * _globalScale), 70, 75 * _globalScale, 42 * _globalScale, VK_W, "R", alpha);
         }
 
-        private void CreateButton(string name, double cx, double cy, string label)
+        private void RenderWiiRemoteLayout(double w, double h, Brush baseBrush, Brush knobBrush, Brush borderBrush, byte alpha)
         {
-            if (_controlsContainer == null) return;
+            // Left: D-Pad cross
+            double dpadCenterX = 150 * _globalScale;
+            double dpadCenterY = h - (170 * _globalScale);
+            double padSize = 54 * _globalScale;
+            double padDist = 58 * _globalScale;
 
-            double btnSize = 58;
+            AddButton("Up", dpadCenterX, dpadCenterY - padDist, padSize, VK_UP, "▲", alpha);
+            AddButton("Down", dpadCenterX, dpadCenterY + padDist, padSize, VK_DOWN, "▼", alpha);
+            AddButton("Left", dpadCenterX - padDist, dpadCenterY, padSize, VK_LEFT, "◀", alpha);
+            AddButton("Right", dpadCenterX + padDist, dpadCenterY, padSize, VK_RIGHT, "▶", alpha);
+
+            // Right: 1 & 2 Buttons + A & B
+            double btnCenterX = w - (140 * _globalScale);
+            double btnCenterY = h - (170 * _globalScale);
+            double spacing = 65 * _globalScale;
+            double btnSize = 58 * _globalScale;
+
+            AddButton("2", btnCenterX + spacing, btnCenterY, btnSize, VK_2, "2", alpha);
+            AddButton("1", btnCenterX - spacing, btnCenterY, btnSize, VK_1, "1", alpha);
+            AddButton("A", btnCenterX, btnCenterY - spacing, btnSize, VK_X, "A", alpha);
+            AddButton("B", btnCenterX, btnCenterY + spacing, btnSize, VK_Z, "B", alpha);
+
+            // Plus (+) & Minus (-)
+            AddButton("-", (w / 2) - (50 * _globalScale), h - (50 * _globalScale), 44 * _globalScale, VK_SPACE, "−", alpha);
+            AddButton("+", (w / 2) + (50 * _globalScale), h - (50 * _globalScale), 44 * _globalScale, VK_RETURN, "+", alpha);
+        }
+
+        private void RenderPlayStationLayout(double w, double h, Brush baseBrush, Brush knobBrush, Brush borderBrush, byte alpha)
+        {
+            // Left: DualShock Analog Stick
+            _stickRadius = 75 * _globalScale;
+            _knobRadius = 32 * _globalScale;
+            double stickX = 140 * _globalScale;
+            double stickY = h - (170 * _globalScale);
+            _stickCenter = new Point(stickX, stickY);
+
+            var stickBase = new Ellipse
+            {
+                Width = _stickRadius * 2,
+                Height = _stickRadius * 2,
+                Fill = baseBrush,
+                Stroke = borderBrush,
+                StrokeThickness = 2
+            };
+            Canvas.SetLeft(stickBase, stickX - _stickRadius);
+            Canvas.SetTop(stickBase, stickY - _stickRadius);
+            ControllerCanvas.Children.Add(stickBase);
+
+            _stickKnob = new Ellipse
+            {
+                Width = _knobRadius * 2,
+                Height = _knobRadius * 2,
+                Fill = knobBrush,
+                Stroke = borderBrush,
+                StrokeThickness = 1.5,
+                IsHitTestVisible = false
+            };
+            Canvas.SetLeft(_stickKnob, stickX - _knobRadius);
+            Canvas.SetTop(_stickKnob, stickY - _knobRadius);
+            ControllerCanvas.Children.Add(_stickKnob);
+
+            // Right: Triangle (△), Square (□), Cross (✕), Circle (○)
+            double btnCenterX = w - (140 * _globalScale);
+            double btnCenterY = h - (170 * _globalScale);
+            double spacing = 65 * _globalScale;
+            double btnSize = 58 * _globalScale;
+
+            AddButton("Cross", btnCenterX, btnCenterY + spacing, btnSize, VK_X, "✕", alpha);
+            AddButton("Square", btnCenterX - spacing, btnCenterY, btnSize, VK_Z, "□", alpha);
+            AddButton("Circle", btnCenterX + spacing, btnCenterY, btnSize, VK_S, "○", alpha);
+            AddButton("Triangle", btnCenterX, btnCenterY - spacing, btnSize, VK_A, "△", alpha);
+
+            // Select & Start
+            AddButton("Select", (w / 2) - (50 * _globalScale), h - (50 * _globalScale), 44 * _globalScale, VK_SPACE, "SEL", alpha);
+            AddButton("Start", (w / 2) + (50 * _globalScale), h - (50 * _globalScale), 44 * _globalScale, VK_RETURN, "START", alpha);
+
+            // L1 & R1
+            AddTriggerButton("L1", 100 * _globalScale, 70, 75 * _globalScale, 42 * _globalScale, VK_Q, "L1", alpha);
+            AddTriggerButton("R1", w - (100 * _globalScale), 70, 75 * _globalScale, 42 * _globalScale, VK_W, "R1", alpha);
+        }
+
+        private void AddButton(string name, double cx, double cy, double size, ushort vk, string label, byte alpha)
+        {
             var btn = new Ellipse
             {
-                Width = btnSize,
-                Height = btnSize,
-                Fill = _btnBrush,
-                Stroke = _borderBrush,
+                Width = size,
+                Height = size,
+                Fill = new SolidColorBrush(Color.FromArgb((byte)(alpha * 0.5), 255, 255, 255)),
+                Stroke = new SolidColorBrush(Color.FromArgb(alpha, 255, 255, 255)),
                 StrokeThickness = 1.5,
-                IsHitTestVisible = true,
-                Tag = name
+                IsHitTestVisible = true
             };
-            Canvas.SetLeft(btn, cx - btnSize / 2);
-            Canvas.SetTop(btn, cy - btnSize / 2);
-            _controlsContainer.Children.Add(btn);
-            _buttons[name] = btn;
+            Canvas.SetLeft(btn, cx - size / 2);
+            Canvas.SetTop(btn, cy - size / 2);
+            ControllerCanvas.Children.Add(btn);
 
-            var lbl = CreateLabel(label, cx, cy, btnSize);
-            _controlsContainer.Children.Add(lbl);
-            _buttonLabels[name] = lbl;
-        }
-
-        private Border CreateLabel(string text, double cx, double cy, double size)
-        {
-            var border = new Border
+            var lbl = new Border
             {
                 Width = size,
                 Height = size,
                 IsHitTestVisible = false,
                 Child = new TextBlock
                 {
-                    Text = text,
-                    Foreground = _textBrush,
-                    FontSize = 18,
+                    Text = label,
+                    Foreground = new SolidColorBrush(Color.FromArgb(alpha, 255, 255, 255)),
+                    FontSize = Math.Max(12, 18 * _globalScale),
                     FontWeight = FontWeights.Bold,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,
                     TextAlignment = TextAlignment.Center
                 }
             };
-            Canvas.SetLeft(border, cx - size / 2);
-            Canvas.SetTop(border, cy - size / 2);
-            return border;
+            Canvas.SetLeft(lbl, cx - size / 2);
+            Canvas.SetTop(lbl, cy - size / 2);
+            ControllerCanvas.Children.Add(lbl);
+
+            _activeButtons.Add(new TouchButtonInfo
+            {
+                Name = name,
+                Vk = vk,
+                Visual = btn
+            });
         }
 
-        private Ellipse CreateTriggerButton(string name, double cx, double cy, string label)
+        private void AddTriggerButton(string name, double cx, double cy, double w, double h, ushort vk, string label, byte alpha)
         {
-            double w = 75;
-            double h = 42;
             var btn = new Ellipse
             {
                 Width = w,
                 Height = h,
-                Fill = _btnBrush,
-                Stroke = _borderBrush,
+                Fill = new SolidColorBrush(Color.FromArgb((byte)(alpha * 0.5), 255, 255, 255)),
+                Stroke = new SolidColorBrush(Color.FromArgb(alpha, 255, 255, 255)),
                 StrokeThickness = 1.5,
-                IsHitTestVisible = true,
-                Tag = name
+                IsHitTestVisible = true
             };
             Canvas.SetLeft(btn, cx - w / 2);
             Canvas.SetTop(btn, cy - h / 2);
-            _controlsContainer!.Children.Add(btn);
+            ControllerCanvas.Children.Add(btn);
 
-            var lbl = CreateLabel(label, cx, cy, w);
-            lbl.Height = h;
-            _controlsContainer.Children.Add(lbl);
+            var lbl = new Border
+            {
+                Width = w,
+                Height = h,
+                IsHitTestVisible = false,
+                Child = new TextBlock
+                {
+                    Text = label,
+                    Foreground = new SolidColorBrush(Color.FromArgb(alpha, 255, 255, 255)),
+                    FontSize = 14 * _globalScale,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    TextAlignment = TextAlignment.Center
+                }
+            };
+            Canvas.SetLeft(lbl, cx - w / 2);
+            Canvas.SetTop(lbl, cy - h / 2);
+            ControllerCanvas.Children.Add(lbl);
 
-            return btn;
+            _activeButtons.Add(new TouchButtonInfo
+            {
+                Name = name,
+                Vk = vk,
+                Visual = btn
+            });
         }
 
-        // ── Touch Event Handlers ──
+        // ══════════════════════════════════════════════════════
+        // TOUCH EVENTS HANDLING
+        // ══════════════════════════════════════════════════════
 
-        private void Canvas_TouchDown(object? sender, TouchEventArgs e)
+        private void Overlay_TouchDown(object? sender, TouchEventArgs e)
         {
             if (!_controlsVisible) return;
 
@@ -408,8 +745,7 @@ namespace TouchJoystick
             int touchId = e.TouchDevice.Id;
 
             // Check Analog Stick
-            double distToStick = Distance(pos, _stickCenter);
-            if (distToStick <= _stickRadius + 35 && _stickTouchId == -1)
+            if (_stickKnob != null && Distance(pos, _stickCenter) <= _stickRadius + 30 && _stickTouchId == -1)
             {
                 _stickTouchId = touchId;
                 UpdateStick(pos);
@@ -417,56 +753,50 @@ namespace TouchJoystick
                 return;
             }
 
-            // Check A/B/X/Y Buttons
-            if (TryHitButton("A", pos, touchId, VK_X)) { e.Handled = true; return; }
-            if (TryHitButton("B", pos, touchId, VK_Z)) { e.Handled = true; return; }
-            if (TryHitButton("X", pos, touchId, VK_S)) { e.Handled = true; return; }
-            if (TryHitButton("Y", pos, touchId, VK_A)) { e.Handled = true; return; }
-
-            // Start Button
-            if (HitTestEllipse(_startBtn, pos))
+            // Check C-Stick (if present)
+            if (_cStickKnob != null && Distance(pos, _cStickCenter) <= _cStickRadius + 25 && _cStickTouchId == -1)
             {
-                _buttonTouchIds["Start"] = touchId;
-                PressButton("Start", VK_RETURN);
-                _startBtn.Fill = _btnPressedBrush;
+                _cStickTouchId = touchId;
+                UpdateCStick(pos);
                 e.Handled = true;
                 return;
             }
 
-            // L Trigger
-            if (HitTestEllipse(_lBtn, pos))
+            // Check Buttons
+            foreach (var btn in _activeButtons)
             {
-                _buttonTouchIds["L"] = touchId;
-                PressButton("L", VK_Q);
-                _lBtn.Fill = _btnPressedBrush;
-                e.Handled = true;
-                return;
-            }
-
-            // R Trigger
-            if (HitTestEllipse(_rBtn, pos))
-            {
-                _buttonTouchIds["R"] = touchId;
-                PressButton("R", VK_W);
-                _rBtn.Fill = _btnPressedBrush;
-                e.Handled = true;
-                return;
+                if (btn.TouchId == -1 && HitTestEllipse(btn.Visual, pos))
+                {
+                    btn.TouchId = touchId;
+                    btn.IsPressed = true;
+                    btn.Visual.Fill = new SolidColorBrush(Color.FromArgb(180, 0, 229, 255));
+                    SendKey(btn.Vk, true);
+                    e.Handled = true;
+                    return;
+                }
             }
         }
 
-        private void Canvas_TouchMove(object? sender, TouchEventArgs e)
+        private void Overlay_TouchMove(object? sender, TouchEventArgs e)
         {
             if (!_controlsVisible) return;
 
-            if (e.TouchDevice.Id == _stickTouchId)
+            int touchId = e.TouchDevice.Id;
+            var pos = e.GetTouchPoint(OverlayCanvas).Position;
+
+            if (touchId == _stickTouchId)
             {
-                var pos = e.GetTouchPoint(OverlayCanvas).Position;
                 UpdateStick(pos);
+                e.Handled = true;
+            }
+            else if (touchId == _cStickTouchId)
+            {
+                UpdateCStick(pos);
                 e.Handled = true;
             }
         }
 
-        private void Canvas_TouchUp(object? sender, TouchEventArgs e)
+        private void Overlay_TouchUp(object? sender, TouchEventArgs e)
         {
             int touchId = e.TouchDevice.Id;
 
@@ -478,41 +808,33 @@ namespace TouchJoystick
                 return;
             }
 
-            foreach (var kvp in _buttonTouchIds)
+            if (touchId == _cStickTouchId)
             {
-                if (kvp.Value == touchId)
+                _cStickTouchId = -1;
+                ResetCStick();
+                e.Handled = true;
+                return;
+            }
+
+            foreach (var btn in _activeButtons)
+            {
+                if (btn.TouchId == touchId)
                 {
-                    string name = kvp.Key;
-                    _buttonTouchIds[name] = -1;
-                    ushort vk = name switch
-                    {
-                        "A" => VK_X,
-                        "B" => VK_Z,
-                        "X" => VK_S,
-                        "Y" => VK_A,
-                        "Start" => VK_RETURN,
-                        "L" => VK_Q,
-                        "R" => VK_W,
-                        _ => 0
-                    };
-                    ReleaseButton(name, vk);
-
-                    if (_buttons.TryGetValue(name, out var btn))
-                        btn.Fill = _btnBrush;
-                    if (name == "Start") _startBtn.Fill = _btnBrush;
-                    if (name == "L") _lBtn.Fill = _btnBrush;
-                    if (name == "R") _rBtn.Fill = _btnBrush;
-
+                    btn.TouchId = -1;
+                    btn.IsPressed = false;
+                    byte alpha = (byte)(_globalOpacity * 255);
+                    btn.Visual.Fill = new SolidColorBrush(Color.FromArgb((byte)(alpha * 0.5), 255, 255, 255));
+                    SendKey(btn.Vk, false);
                     e.Handled = true;
                     return;
                 }
             }
         }
 
-        // ── Stick Logic ──
-
         private void UpdateStick(Point touchPos)
         {
+            if (_stickKnob == null) return;
+
             double dx = touchPos.X - _stickCenter.X;
             double dy = touchPos.Y - _stickCenter.Y;
             double dist = Math.Sqrt(dx * dx + dy * dy);
@@ -542,6 +864,7 @@ namespace TouchJoystick
 
         private void ResetStick()
         {
+            if (_stickKnob == null) return;
             Canvas.SetLeft(_stickKnob, _stickCenter.X - _knobRadius);
             Canvas.SetTop(_stickKnob, _stickCenter.Y - _knobRadius);
 
@@ -551,6 +874,49 @@ namespace TouchJoystick
             SetDirectionKey(ref _keyRight, false, VK_RIGHT);
         }
 
+        private void UpdateCStick(Point touchPos)
+        {
+            if (_cStickKnob == null) return;
+
+            double dx = touchPos.X - _cStickCenter.X;
+            double dy = touchPos.Y - _cStickCenter.Y;
+            double dist = Math.Sqrt(dx * dx + dy * dy);
+
+            if (dist > _cStickRadius)
+            {
+                dx = dx / dist * _cStickRadius;
+                dy = dy / dist * _cStickRadius;
+            }
+
+            Canvas.SetLeft(_cStickKnob, _cStickCenter.X + dx - _cKnobRadius);
+            Canvas.SetTop(_cStickKnob, _cStickCenter.Y + dy - _cKnobRadius);
+
+            double nx = dx / _cStickRadius;
+            double ny = dy / _cStickRadius;
+
+            bool up = ny < -_deadZone;
+            bool down = ny > _deadZone;
+            bool left = nx < -_deadZone;
+            bool right = nx > _deadZone;
+
+            SetDirectionKey(ref _cKeyUp, up, VK_I);
+            SetDirectionKey(ref _cKeyDown, down, VK_K);
+            SetDirectionKey(ref _cKeyLeft, left, VK_J);
+            SetDirectionKey(ref _cKeyRight, right, VK_L);
+        }
+
+        private void ResetCStick()
+        {
+            if (_cStickKnob == null) return;
+            Canvas.SetLeft(_cStickKnob, _cStickCenter.X - _cKnobRadius);
+            Canvas.SetTop(_cStickKnob, _cStickCenter.Y - _cKnobRadius);
+
+            SetDirectionKey(ref _cKeyUp, false, VK_I);
+            SetDirectionKey(ref _cKeyDown, false, VK_K);
+            SetDirectionKey(ref _cKeyLeft, false, VK_J);
+            SetDirectionKey(ref _cKeyRight, false, VK_L);
+        }
+
         private void SetDirectionKey(ref bool current, bool desired, ushort vk)
         {
             if (current == desired) return;
@@ -558,34 +924,15 @@ namespace TouchJoystick
             SendKey(vk, desired);
         }
 
-        // ── Button Logic ──
+        // ══════════════════════════════════════════════════════
+        // INPUT SENDING & WIN32 HELPERS
+        // ══════════════════════════════════════════════════════
 
-        private bool TryHitButton(string name, Point pos, int touchId, ushort vk)
+        private static void SendSingleKey(ushort vk)
         {
-            if (!_buttons.TryGetValue(name, out var btn)) return false;
-            if (!HitTestEllipse(btn, pos)) return false;
-
-            _buttonTouchIds[name] = touchId;
-            PressButton(name, vk);
-            btn.Fill = _btnPressedBrush;
-            return true;
-        }
-
-        private void PressButton(string name, ushort vk)
-        {
-            if (_buttonPressed[name]) return;
-            _buttonPressed[name] = true;
             SendKey(vk, true);
-        }
-
-        private void ReleaseButton(string name, ushort vk)
-        {
-            if (!_buttonPressed[name]) return;
-            _buttonPressed[name] = false;
             SendKey(vk, false);
         }
-
-        // ── Input Sending ──
 
         private static void SendKey(ushort vk, bool press)
         {
@@ -607,8 +954,6 @@ namespace TouchJoystick
             SendInput(1, new[] { input }, Marshal.SizeOf<INPUT>());
         }
 
-        // ── Helpers ──
-
         private static bool HitTestEllipse(Ellipse el, Point pos)
         {
             double cx = Canvas.GetLeft(el) + el.Width / 2;
@@ -627,16 +972,47 @@ namespace TouchJoystick
             return Math.Sqrt(dx * dx + dy * dy);
         }
 
-        private void ToggleControlsVisibility()
+        // ══════════════════════════════════════════════════════
+        // SMART BATTERY & PERFORMANCE MONITOR
+        // ══════════════════════════════════════════════════════
+
+        private void InitBatteryMonitor()
         {
-            _controlsVisible = !_controlsVisible;
-            if (_controlsContainer != null)
+            _batteryTimer = new DispatcherTimer
             {
-                _controlsContainer.Opacity = _controlsVisible ? 1.0 : 0.0;
-            }
-            if (_togglePill.Child is TextBlock tb)
+                Interval = TimeSpan.FromSeconds(3)
+            };
+            _batteryTimer.Tick += (s, e) => UpdateBatteryStatus();
+            _batteryTimer.Start();
+            UpdateBatteryStatus();
+        }
+
+        private void UpdateBatteryStatus()
+        {
+            if (GetSystemPowerStatus(out SYSTEM_POWER_STATUS status))
             {
-                tb.Text = _controlsVisible ? "🎮 Touch" : "👁️ Show";
+                bool isAc = status.ACLineStatus == 1;
+                int percent = status.BatteryLifePercent;
+
+                string label = isAc
+                    ? "⚡ AC Boost: 60 FPS Maksimal"
+                    : $"🔋 Baterai: {percent}% (Mode Dingin & Hemat Daya)";
+
+                HubBatteryText.Text = label;
+                TxtOverlayBattery.Text = isAc
+                    ? "⚡ Mode Daya: Colok Listrik (Performa Penuh)"
+                    : $"🔋 Mode Daya: Baterai ({percent}% - Dingin & Efisien)";
+
+                if (isAc)
+                {
+                    HubBatteryText.Foreground = new SolidColorBrush(Color.FromRgb(0, 229, 255));
+                    HubBatteryPill.BorderBrush = new SolidColorBrush(Color.FromRgb(0, 229, 255));
+                }
+                else
+                {
+                    HubBatteryText.Foreground = new SolidColorBrush(Color.FromRgb(255, 183, 77));
+                    HubBatteryPill.BorderBrush = new SolidColorBrush(Color.FromRgb(255, 183, 77));
+                }
             }
         }
     }

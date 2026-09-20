@@ -1,11 +1,11 @@
 # Dolphin Emulator - Surface Laptop Go 1 Edition
 
-[![Version](https://img.shields.io/badge/Version-v1.4.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
+[![Version](https://img.shields.io/badge/Version-v2.0.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-0078D6.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Hardware](https://img.shields.io/badge/Target-Surface%20Laptop%20Go%201-success.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1)
 [![License](https://img.shields.io/badge/License-GPL%20v2%2B-orange.svg)](COPYING)
 
-> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v1.4.0-surface-go)**  
+> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v2.0.0-surface-go)**  
 > Versi portabel yang sudah terkonfigurasi optimal: cukup ekstrak dan langsung mainkan tanpa perlu instalasi tambahan.
 
 ---
@@ -105,13 +105,48 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
 * **[NEW] Tombol Layar Sentuh `[ 🎮 Touch ]`**: Menambahkan tombol sentuh minimalis di atas tengah layar untuk menyembunyikan/menampilkan kontrol joystick cukup dengan 1 sentuhan jari, tanpa membutuhkan keyboard fisik.
 * **[SIMPLIFY] Penggunaan Sangat Sederhana**: Cukup klik 1 shortcut desktop **"Dolphin (Surface Go)"**, game dan joystick siap dimainkan seketika.
 
+### [v2.0.0] - 2026-09-20 (Major Release: Surface Gaming Suite & Multi-Emulator Hub)
+* **[MAJOR] Multi-Emulator Gaming Hub**: Antarmuka visual gelap modern (*touch-first*) dengan kartu emulator besar untuk **Dolphin** (GameCube/Wii), **PCSX2** (PS2), **DuckStation** (PS1), **PPSSPP** (PSP), dan **RetroArch** (GBA/Retro). Cukup klik/tap emulator pilihan Anda!
+* **[MAJOR] In-Game Quick Touch GameBar**: Bilah menu mengambang di sisi atas layar game dengan akses instan 1 sentuhan jari:
+  - 💾 **Simpan Cepat (Save State - F1)**
+  - 📂 **Muat Cepat (Load State - F8)**
+  - ⏩ **Kecepatan Turbo (Fast-Forward - Tab)** untuk lewati cutscene lama
+  - ⚙ **Menu Drawer Pengaturan Layar Sentuh**
+* **[MAJOR] Preset Layout Kontrol Dinamis**:
+  - **Mode GameCube**: Analog stick utama, tombol A/B/X/Y diamond, mini C-Stick kuning, Start, serta L/R trigger.
+  - **Mode Wii Remote Horizontal**: Tombol D-Pad panah 4 arah, tombol 1 & 2, tombol A & B, serta tombol Plus (+) dan Minus (-).
+  - **Mode PlayStation**: Analog stick, tombol simbol △, □, ✕, ○, tombol Select & Start, serta L1 & R1.
+* **[MAJOR] Slider Transparansi & Skala Ukuran**: Atur ketebalan tombol (20% - 100%) dan ukuran tombol (80% - 140%) secara langsung saat game berjalan sesuai kenyamanan jempol.
+* **[MAJOR] Smart Battery & Performance Profiler**: Deteksi otomatis status pengisian daya laptop via Win32 API (`SYSTEM_POWER_STATUS`):
+  - ⚡ **Mode Colok Listrik (AC Boost)**: Memaksimalkan clock GPU dan CPU untuk 60 FPS stabil.
+  - 🔋 **Mode Baterai**: Mengaktifkan profil hemat daya dan dingin agar laptop tidak cepat panas saat dimainkan tanpa charger.
+* **[MAJOR] Skema Arsitektur Sistem**: Menambahkan diagram alur kerja terpadu pada dokumentasi repositori.
+
 ---
 
-## 5. Cara Menggunakan Build Rilis
+## 5. Skema Arsitektur Sistem
+
+```mermaid
+flowchart TD
+    Launcher["Dolphin-Surface.exe (v2.0.0 Suite - 187 KB)"] --> Hub["Multi-Emulator Touch Hub UI\n(Dolphin, PCSX2, DuckStation, PPSSPP, RetroArch)"]
+    Hub --> Emulators["Emulator Engine Manager\n(Auto-Launch & Sync)"]
+    Launcher --> Overlay["Unified On-Screen Touch Layer (Multi-Touch)"]
+    Overlay --> QuickMenu["In-Game Quick Touch GameBar\n(Save F1 / Load F8 / Turbo Tab / Sliders)"]
+    Overlay --> Controller["Dynamic Controller Layouts\n(GameCube / Wii Remote / PlayStation)"]
+    Overlay --> Battery["Smart Battery & Performance Profiler\n(60 FPS AC Boost / Mode Dingin Hemat Baterai)"]
+```
+
+---
+
+## 6. Cara Menggunakan Build Rilis
 
 1. Buka halaman **[Releases](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)**.
-2. Unduh berkas **`Dolphin-Surface-Laptop-Go-1-Windows-x64.zip`** (atau download langsung file `Dolphin-Surface.exe`).
-3. Ekstrak file ZIP tersebut ke folder laptop Anda (misal: di folder `Documents` atau `Desktop`).
-4. Cukup jalankan **`Dolphin-Surface.exe`** (atau klik shortcut di desktop).
-5. Dolphin otomatis terbuka lengkap dengan joystick layar sentuh yang siap dimainkan!
-6. Sentuh tombol **`[ 🎮 Touch ]`** di atas tengah layar kapan saja untuk menyembunyikan/menampilkan tombol kontrol.
+2. Unduh berkas **`Dolphin-Surface-Laptop-Go-1-Windows-x64.zip`** (atau download langsung file executable `Dolphin-Surface.exe`).
+3. Ekstrak file ZIP ke folder mana saja di laptop Anda (misal: di folder `Documents` atau `Desktop`).
+4. Jalankan **`Dolphin-Surface.exe`** (atau klik shortcut **"Dolphin (Surface Go)"** di Desktop).
+5. Pada menu Hub yang muncul, tap **Dolphin** (atau emulator lain) untuk mulai bermain.
+6. Saat game berjalan:
+   - Gunakan joystick virtual langsung di layar sentuh.
+   - Tap tombol **`💾 Simpan (F1)`** atau **`📂 Muat (F8)`** di GameBar atas untuk save/load instan.
+   - Tap **`⚙ Menu`** untuk berganti tata letak tombol (GameCube / Wii / PlayStation) serta mengatur ukuran dan transparansi tombol.
+   - Status baterai dan profil performa otomatis ditampilkan di GameBar.
