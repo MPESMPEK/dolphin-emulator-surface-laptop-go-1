@@ -67,19 +67,7 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
 
 ---
 
-## 4. Sistem Penomoran Versi (Versioning Rules)
-
-Repositori ini mengikuti kaidah *Semantic Versioning* yang disederhanakan:
-* **Perubahan Besar (Major Update, misal: `v1.0.0` -> `v2.0.0`)**:  
-  Diterapkan ketika ada perubahan besar pada struktur arsitektur C++, perombakan engine, atau penambahan fitur baru berskala besar.
-* **Perubahan Kecil (Minor Update, misal: `v1.0.0` -> `v1.1.0`)**:  
-  Diterapkan ketika ada penyesuaian parameter performa, perbaikan bug, penambahan preset game tertentu, atau optimasi kecil pada kode.
-* **Perbaikan Patch (Patch Update, misal: `v1.1.0` -> `v1.1.1`)**:  
-  Diterapkan untuk perbaikan cepat seperti typo konfigurasi atau hotfix darurat.
-
----
-
-## 5. Riwayat Versi (Changelog)
+## 4. Riwayat Versi (Changelog)
 
 ### [v1.0.0] - 2026-09-20 (Rilis Utama Perdana)
 * **[NEW]** Dukungan aspect ratio native 3:2 (`Surface3_2`) untuk resolusi 1536x1024.
@@ -91,7 +79,7 @@ Repositori ini mengikuti kaidah *Semantic Versioning* yang disederhanakan:
 
 ---
 
-## 6. Cara Menggunakan Build Rilis
+## 5. Cara Menggunakan Build Rilis
 
 1. Buka halaman **[Releases](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)**.
 2. Unduh berkas **`Dolphin-Surface-Laptop-Go-1-Windows-x64.zip`**.
