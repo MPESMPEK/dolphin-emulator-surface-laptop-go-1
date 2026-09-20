@@ -69,12 +69,6 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
 
 ## 4. Riwayat Versi (Changelog)
 
-### [v1.1.0] - 2026-09-20 (Pembaruan Fitur Minor)
-* **[NEW]** Fitur **Folder Game Otomatis (`Games/`)**: Dolphin otomatis memindai dan menampilkan game yang ditaruh di folder `Games/` tanpa perlu import manual (import manual tetap didukung penuh).
-* **[ENHANCEMENT]** Pembaruan logika C++ pada `MainSettings.cpp` (`GetIsoPaths()`) untuk memindai folder lokal `Games/` secara otomatis di level engine.
-* **[CONFIG]** Penambahan `ISOPath0 = Games` dan `RecursiveISOPaths = True` pada `Dolphin.ini`.
-* **[PACKAGE]** Menyertakan folder `Games/` dan panduan `MASUKKAN_GAME_DISINI.txt` di dalam paket rilis ZIP.
-
 ### [v1.0.0] - 2026-09-20 (Rilis Utama Perdana)
 * **[NEW]** Dukungan aspect ratio native 3:2 (`Surface3_2`) untuk resolusi 1536x1024.
 * **[NEW]** Menu pilihan `Surface (3:2)` pada jendela pengaturan grafis DolphinQt.
@@ -82,6 +76,12 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
 * **[NEW]** Deteksi hardware `IsSurfaceLaptopGo()` di `DriverDetails`.
 * **[NEW]** Paket rilis portabel siap pakai untuk Windows x64 dengan preset Direct3D 12 + Hybrid Ubershaders.
 * **[REMOVED]** Menghapus seluruh dependensi Flatpak, skrip Linux, Android, dan macOS.
+
+### [v1.1.0] - 2026-09-20 (Pembaruan Fitur Minor)
+* **[NEW]** Fitur **Folder Game Otomatis (`Games/`)**: Dolphin otomatis memindai dan menampilkan game yang ditaruh di folder `Games/` tanpa perlu import manual (import manual tetap didukung penuh).
+* **[ENHANCEMENT]** Pembaruan logika C++ pada `MainSettings.cpp` (`GetIsoPaths()`) untuk memindai folder lokal `Games/` secara otomatis di level engine.
+* **[CONFIG]** Penambahan `ISOPath0 = Games` dan `RecursiveISOPaths = True` pada `Dolphin.ini`.
+* **[PACKAGE]** Menyertakan folder `Games/` dan panduan `MASUKKAN_GAME_DISINI.txt` di dalam paket rilis ZIP.
 
 ---
 
