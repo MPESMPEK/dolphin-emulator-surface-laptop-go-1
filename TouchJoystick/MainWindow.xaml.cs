@@ -251,7 +251,30 @@ namespace TouchJoystick
 
         private void LaunchPcsx2_Click(object sender, MouseButtonEventArgs e)
         {
-            TryLaunchEmulator("PCSX2", "pcsx2.exe", ControllerLayout.PlayStation);
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string parentDir = Directory.GetParent(baseDir)?.FullName ?? baseDir;
+            string docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            var candidates = new[]
+            {
+                System.IO.Path.Combine(baseDir, "pcsx2-qt.exe"),
+                System.IO.Path.Combine(baseDir, "PCSX2-x64", "pcsx2-qt.exe"),
+                System.IO.Path.Combine(parentDir, "PCSX2-x64", "pcsx2-qt.exe"),
+                System.IO.Path.Combine(docs, "Dolphin-Surface-Go", "PCSX2-x64", "pcsx2-qt.exe"),
+                System.IO.Path.Combine(docs, "PCSX2-Surface-Go", "pcsx2-qt.exe"),
+                System.IO.Path.Combine(docs, "pcsx2-surface", "bin", "pcsx2-qt.exe")
+            };
+
+            foreach (var path in candidates)
+            {
+                if (File.Exists(path))
+                {
+                    StartEmulatorProcess(path, ControllerLayout.PlayStation);
+                    return;
+                }
+            }
+
+            TryLaunchEmulator("PCSX2", "pcsx2-qt.exe", ControllerLayout.PlayStation);
         }
 
         private void LaunchDuckStation_Click(object sender, MouseButtonEventArgs e)

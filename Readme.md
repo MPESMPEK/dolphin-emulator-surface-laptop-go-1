@@ -1,12 +1,12 @@
-# Dolphin Emulator - Surface Laptop Go 1 Edition
+# Surface Gaming Suite - Surface Laptop Go 1 Edition
 
-[![Version](https://img.shields.io/badge/Version-v2.0.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
+[![Version](https://img.shields.io/badge/Version-v2.1.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-0078D6.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Hardware](https://img.shields.io/badge/Target-Surface%20Laptop%20Go%201-success.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1)
-[![License](https://img.shields.io/badge/License-GPL%20v2%2B-orange.svg)](COPYING)
+[![License](https://img.shields.io/badge/License-GPL%20v2%2B%20%2F%20v3-orange.svg)](COPYING)
 
-> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v2.0.0-surface-go)**  
-> Versi portabel yang sudah terkonfigurasi optimal: cukup ekstrak dan langsung mainkan tanpa perlu instalasi tambahan.
+> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v2.1.0-surface-go)**  
+> Paket emulator terpadu siap main (Dolphin GameCube/Wii + PCSX2 PlayStation 2) yang sudah terkonfigurasi optimal untuk Surface Laptop Go 1. Cukup ekstrak dan langsung mainkan tanpa perlu instalasi tambahan.
 
 ---
 
@@ -122,14 +122,22 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
   - 🔋 **Mode Baterai**: Mengaktifkan profil hemat daya dan dingin agar laptop tidak cepat panas saat dimainkan tanpa charger.
 * **[MAJOR] Skema Arsitektur Sistem**: Menambahkan diagram alur kerja terpadu pada dokumentasi repositori.
 
+### [v2.1.0] - 2026-09-20 (Rebranding: Surface Gaming Suite & Bundled PCSX2 Integration)
+* **[REBRAND] Surface Gaming Suite**: Mengubah identitas dan nama proyek menjadi **Surface Gaming Suite** — ekosistem gaming all-in-one terpadu khusus layar sentuh Surface Laptop Go 1.
+* **[NEW] Bundled PCSX2 Integration**: Mengintegrasikan emulator PlayStation 2 (**PCSX2**) siap main lengkap dengan konfigurasi terkalibrasi dari repositori fork [`MPESMPEK/pcsx2-surface-laptop-go-1`](https://github.com/MPESMPEK/pcsx2-surface-laptop-go-1) (Direct3D 12, Aspect Ratio 3:2, Multi-Threaded VU1, FastBoot, dan mode portabel).
+* **[NEW] Unified Executable (`Surface-Gaming-Suite.exe`)**: File aplikasi utama kini bernama `Surface-Gaming-Suite.exe` (187 KB) yang dapat menjalankan Dolphin GameCube/Wii maupun PCSX2 PlayStation 2 secara langsung.
+* **[NEW] Auto-Switch Controller**: Membuka PCSX2 otomatis mengaktifkan joystick layar sentuh dengan layout stik PlayStation (△, □, ✕, ○, L1, R1).
+* **[SHORTCUT] Pintasan Desktop**: Ikon desktop diperbarui menjadi **"Surface Gaming Suite"**.
+
 ---
 
 ## 5. Skema Arsitektur Sistem
 
 ```mermaid
 flowchart TD
-    Launcher["Dolphin-Surface.exe (v2.0.0 Suite - 187 KB)"] --> Hub["Multi-Emulator Touch Hub UI\n(Dolphin, PCSX2, DuckStation, PPSSPP, RetroArch)"]
-    Hub --> Emulators["Emulator Engine Manager\n(Auto-Launch & Sync)"]
+    Launcher["Surface-Gaming-Suite.exe (v2.1.0 - 187 KB)"] --> Hub["Multi-Emulator Touch Hub UI\n(Dolphin, PCSX2, DuckStation, PPSSPP, RetroArch)"]
+    Hub --> Dolphin["Dolphin Engine (GameCube/Wii 3:2 D3D12)"]
+    Hub --> PCSX2["PCSX2 Engine (PlayStation 2 3:2 D3D12)"]
     Launcher --> Overlay["Unified On-Screen Touch Layer (Multi-Touch)"]
     Overlay --> QuickMenu["In-Game Quick Touch GameBar\n(Save F1 / Load F8 / Turbo Tab / Sliders)"]
     Overlay --> Controller["Dynamic Controller Layouts\n(GameCube / Wii Remote / PlayStation)"]
@@ -141,12 +149,13 @@ flowchart TD
 ## 6. Cara Menggunakan Build Rilis
 
 1. Buka halaman **[Releases](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)**.
-2. Unduh berkas **`Dolphin-Surface-Laptop-Go-1-Windows-x64.zip`** (atau download langsung file executable `Dolphin-Surface.exe`).
+2. Unduh berkas **`Surface-Gaming-Suite-Windows-x64.zip`** (atau download langsung file `Surface-Gaming-Suite.exe`).
 3. Ekstrak file ZIP ke folder mana saja di laptop Anda (misal: di folder `Documents` atau `Desktop`).
-4. Jalankan **`Dolphin-Surface.exe`** (atau klik shortcut **"Dolphin (Surface Go)"** di Desktop).
-5. Pada menu Hub yang muncul, tap **Dolphin** (atau emulator lain) untuk mulai bermain.
+4. Jalankan **`Surface-Gaming-Suite.exe`** (atau klik shortcut **"Surface Gaming Suite"** di Desktop).
+5. Pada menu Hub yang muncul:
+   - Tap **Dolphin** untuk bermain game GameCube / Wii (joystick GameCube otomatis aktif).
+   - Tap **PCSX2** untuk bermain game PlayStation 2 (joystick PlayStation otomatis aktif).
 6. Saat game berjalan:
-   - Gunakan joystick virtual langsung di layar sentuh.
+   - Mainkan langsung menggunakan kontrol layar sentuh multi-touch.
    - Tap tombol **`💾 Simpan (F1)`** atau **`📂 Muat (F8)`** di GameBar atas untuk save/load instan.
-   - Tap **`⚙ Menu`** untuk berganti tata letak tombol (GameCube / Wii / PlayStation) serta mengatur ukuran dan transparansi tombol.
-   - Status baterai dan profil performa otomatis ditampilkan di GameBar.
+   - Tap **`⚙ Menu`** untuk menyesuaikan ukuran dan transparansi tombol sentuh.
