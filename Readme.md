@@ -1,11 +1,11 @@
 # Dolphin Emulator - Surface Laptop Go 1 Edition
 
-[![Version](https://img.shields.io/badge/Version-v1.3.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
+[![Version](https://img.shields.io/badge/Version-v1.4.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-0078D6.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Hardware](https://img.shields.io/badge/Target-Surface%20Laptop%20Go%201-success.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1)
 [![License](https://img.shields.io/badge/License-GPL%20v2%2B-orange.svg)](COPYING)
 
-> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v1.3.0-surface-go)**  
+> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v1.4.0-surface-go)**  
 > Versi portabel yang sudah terkonfigurasi optimal: cukup ekstrak dan langsung mainkan tanpa perlu instalasi tambahan.
 
 ---
@@ -98,13 +98,20 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
 * **[NEW] Auto-Deteksi Touchscreen**: Otomatis mendeteksi ketersediaan layar sentuh via Windows API (`SM_DIGITIZER`). Jika tidak ada touchscreen, aplikasi menampilkan peringatan.
 * **[NEW] Shortcut Keyboard**: Tekan `Ctrl+J` untuk sembunyikan/tampilkan overlay, `Esc` untuk keluar.
 
+### [v1.4.0] - 2026-09-20 (Integrasi 1 Executable Terpadu - Dolphin-Surface.exe)
+* **[NEW] Satu Executable Terpadu (`Dolphin-Surface.exe`)**: Menggabungkan Dolphin Emulator dan Touchscreen Joystick Overlay menjadi 1 file aplikasi terintegrasi (171 KB). Tidak perlu membuka 2 aplikasi terpisah secara manual!
+* **[NEW] Auto-Launch & Auto-Sync**: Menjalankan `Dolphin-Surface.exe` otomatis menyalakan Dolphin sekaligus memunculkan joystick virtual transparan di atas layar game.
+* **[NEW] Auto-Exit Otomatis**: Saat game atau jendela Dolphin ditutup, kontrol joystick otomatis tertutup bersih tanpa meninggalkan sisa proses di memori.
+* **[NEW] Tombol Layar Sentuh `[ 🎮 Touch ]`**: Menambahkan tombol sentuh minimalis di atas tengah layar untuk menyembunyikan/menampilkan kontrol joystick cukup dengan 1 sentuhan jari, tanpa membutuhkan keyboard fisik.
+* **[SIMPLIFY] Penggunaan Sangat Sederhana**: Cukup klik 1 shortcut desktop **"Dolphin (Surface Go)"**, game dan joystick siap dimainkan seketika.
+
 ---
 
 ## 5. Cara Menggunakan Build Rilis
 
 1. Buka halaman **[Releases](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)**.
-2. Unduh berkas **`Dolphin-Surface-Laptop-Go-1-Windows-x64.zip`**.
-3. Ekstrak file ZIP tersebut ke folder mana saja di laptop Anda (misal: di folder `Documents` atau `Desktop`).
-4. Buka folder dan jalankan **`Dolphin.exe`**.
-5. Tambahkan direktori tempat Anda menyimpan game GameCube / Wii, dan selamat bermain!
-6. **[Opsional — Kontrol Layar Sentuh]**: Jalankan **`TouchJoystick.exe`** sebelum atau sesudah membuka game. Overlay joystick transparan akan muncul di layar sentuh. Tekan `Ctrl+J` untuk sembunyikan/tampilkan, `Esc` untuk menutup.
+2. Unduh berkas **`Dolphin-Surface-Laptop-Go-1-Windows-x64.zip`** (atau download langsung file `Dolphin-Surface.exe`).
+3. Ekstrak file ZIP tersebut ke folder laptop Anda (misal: di folder `Documents` atau `Desktop`).
+4. Cukup jalankan **`Dolphin-Surface.exe`** (atau klik shortcut di desktop).
+5. Dolphin otomatis terbuka lengkap dengan joystick layar sentuh yang siap dimainkan!
+6. Sentuh tombol **`[ 🎮 Touch ]`** di atas tengah layar kapan saja untuk menyembunyikan/menampilkan tombol kontrol.

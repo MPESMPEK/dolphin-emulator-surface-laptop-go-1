@@ -4,8 +4,9 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon />
-    <AssemblyName>TouchJoystick</AssemblyName>
-    <RootNamespace>TouchJoystick</RootNamespace>
+    <AssemblyName>Dolphin-Surface</AssemblyName>
+    <RootNamespace>DolphinSurface</RootNamespace>
+    <Nullable>enable</Nullable>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
