@@ -23,6 +23,10 @@ set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 project(dolphin-emu)
 
+if(NOT WIN32)
+  message(FATAL_ERROR "Dolphin Surface Laptop Go 1 Edition only supports Windows!")
+endif()
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake)
 
 # Support functions
@@ -838,27 +842,8 @@ add_subdirectory(Source)
 ########################################
 # Install shared data files
 #
-if(NOT CMAKE_SYSTEM_NAME MATCHES "Darwin|Windows")
-  install(DIRECTORY Data/Sys/ DESTINATION ${datadir}/Sys PATTERN)
-endif()
-if(NOT CMAKE_SYSTEM_NAME MATCHES "Linux|FreeBSD|OpenBSD|Darwin")
-  install(FILES COPYING DESTINATION ${datadir})
-  install(DIRECTORY LICENSES DESTINATION ${datadir}/LICENSES PATTERN)
-endif()
-if(CMAKE_SYSTEM_NAME MATCHES "Linux|FreeBSD|OpenBSD")
-  # Install the application icon and menu item
-  install(FILES Data/dolphin-emu.svg
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/scalable/apps)
-  install(FILES Data/dolphin-emu.png
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/256x256/apps)
-  install(FILES Data/dolphin-emu.desktop
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
-  # Install manpages
-  install(FILES Data/dolphin-emu.6
-          DESTINATION ${CMAKE_INSTALL_MANDIR}/man6)
-  install(FILES Data/dolphin-emu-nogui.6
-          DESTINATION ${CMAKE_INSTALL_MANDIR}/man6)
-endif()
+install(FILES COPYING DESTINATION ${datadir})
+install(DIRECTORY LICENSES DESTINATION ${datadir}/LICENSES PATTERN)
 
 # packaging information
 set(CPACK_PACKAGE_NAME "dolphin-emu")
