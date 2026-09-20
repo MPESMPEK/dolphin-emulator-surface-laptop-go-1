@@ -1,11 +1,11 @@
 # Dolphin Emulator - Surface Laptop Go 1 Edition
 
-[![Version](https://img.shields.io/badge/Version-v1.1.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
+[![Version](https://img.shields.io/badge/Version-v1.2.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-0078D6.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Hardware](https://img.shields.io/badge/Target-Surface%20Laptop%20Go%201-success.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1)
 [![License](https://img.shields.io/badge/License-GPL%20v2%2B-orange.svg)](COPYING)
 
-> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v1.0.0-surface-go)**  
+> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v1.2.0-surface-go)**  
 > Versi portabel yang sudah terkonfigurasi optimal: cukup ekstrak dan langsung mainkan tanpa perlu instalasi tambahan.
 
 ---
@@ -32,6 +32,7 @@ Build ini dikompilasi dan dikalibrasi khusus untuk profil perangkat keras beriku
 | **Prosesor (CPU)** | Intel Core i5-1035G1 (10th Gen Ice Lake, 4 Core / 8 Thread, 1.00 GHz Base up to 3.60 GHz Turbo) |
 | **Kartu Grafis (GPU)** | Intel UHD Graphics G1 (Gen 11 Ice Lake, 32 Execution Units) |
 | **Memori (RAM)** | 8 GB LPDDR4x (Shared Memory VRAM) |
+| **Penyimpanan (Storage)** | **Minimal pakailah NVMe SSD** (bukan tipe eMMC 64GB) agar performa loading game instan dan fitur *Fast Disc Speed* berjalan maksimal tanpa bottleneck I/O |
 | **Layar (Display)** | 12.4 inci PixelSense Touchscreen, Resolusi Asli **1536 x 1024** |
 | **Rasio Aspek Layar** | **3:2** (Bukan 16:9 atau 4:3 standar) |
 | **Batas Daya & Suhu** | 15W TDP (Thermal Design Power) |
@@ -82,6 +83,11 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
 * **[ENHANCEMENT]** Pembaruan logika C++ pada `MainSettings.cpp` (`GetIsoPaths()`) untuk memindai folder lokal `Games/` secara otomatis di level engine.
 * **[CONFIG]** Penambahan `ISOPath0 = Games` dan `RecursiveISOPaths = True` pada `Dolphin.ini`.
 * **[PACKAGE]** Menyertakan folder `Games/` dan panduan `MASUKKAN_GAME_DISINI.txt` di dalam paket rilis ZIP.
+
+### [v1.2.0] - 2026-09-20 (Optimasi UI Super Ringan & Loading Game Instan)
+* **[PERF] UI Super Ringan**: Mematikan polling background telemetry (Analytics) dan auto-update checks, menonaktifkan statusbar redraw overhead, serta mengaktifkan tema Clean native agar UI responsif seketika tanpa stutter.
+* **[PERF] Loading Game Super Cepat**: Memaksimalkan `FastDiscSpeed` (bypass batasan 2.6 MB/s drive DVD GameCube/Wii) dan `SyncOnSkipIdle` (melewatkan siklus idle CPU saat loading screen) sehingga loading game berjalan instan.
+* **[DOCS] Rekomendasi Media Penyimpanan**: Menambahkan catatan spesifikasi rekomendasi minimal **NVMe SSD** (bukan eMMC 64GB) agar performa loading game instan dan bebas bottleneck I/O.
 
 ---
 
