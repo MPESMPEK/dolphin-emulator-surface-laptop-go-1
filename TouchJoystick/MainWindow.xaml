@@ -103,32 +103,17 @@
                             </Grid>
                         </Border>
 
-                        <!-- Card: PPSSPP (PSP) -->
-                        <Border Width="280" Height="200" Background="#161922" BorderBrush="#252A38" BorderThickness="1" CornerRadius="16" Margin="0,0,20,20" Cursor="Hand" MouseDown="LaunchPpsspp_Click">
+                        <!-- Card: PPSSPP (PSP - PlayStation Portable) -->
+                        <Border Width="280" Height="200" Background="#161922" BorderBrush="#4DD0E1" BorderThickness="1.5" CornerRadius="16" Margin="0,0,20,20" Cursor="Hand" MouseDown="LaunchPpsspp_Click">
                             <Grid Margin="18">
                                 <StackPanel VerticalAlignment="Top">
                                     <TextBlock Text="🏎️" FontSize="36" Margin="0,0,0,6"/>
                                     <TextBlock Text="PPSSPP" Foreground="#FFFFFF" FontSize="18" FontWeight="Bold"/>
-                                    <TextBlock Text="PlayStation Portable" Foreground="#4DD0E1" FontSize="12" FontWeight="SemiBold"/>
-                                    <TextBlock Text="Game PSP 60 FPS sangat mulus di GPU Intel UHD Gen 11." Foreground="#8A96A6" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Sony PlayStation Portable" Foreground="#4DD0E1" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Surface Edition AVX2, resolusi 3:2, 60 FPS mulus di iGPU." Foreground="#8A96A6" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap"/>
                                 </StackPanel>
-                                <Border Background="#252A38" CornerRadius="8" Padding="10,6" VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                                    <TextBlock Text="BUKA / SCAN 🔍" Foreground="#CBD5E1" FontSize="11" FontWeight="SemiBold"/>
-                                </Border>
-                            </Grid>
-                        </Border>
-
-                        <!-- Card: RetroArch (Multi-System) -->
-                        <Border Width="280" Height="200" Background="#161922" BorderBrush="#252A38" BorderThickness="1" CornerRadius="16" Margin="0,0,20,20" Cursor="Hand" MouseDown="LaunchRetroArch_Click">
-                            <Grid Margin="18">
-                                <StackPanel VerticalAlignment="Top">
-                                    <TextBlock Text="🕹️" FontSize="36" Margin="0,0,0,6"/>
-                                    <TextBlock Text="RetroArch" Foreground="#FFFFFF" FontSize="18" FontWeight="Bold"/>
-                                    <TextBlock Text="GBA, SNES, Genesis &amp; Arcade" Foreground="#BA68C8" FontSize="12" FontWeight="SemiBold"/>
-                                    <TextBlock Text="Pusat game klasik retro all-in-one dengan joystick sentuh." Foreground="#8A96A6" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap"/>
-                                </StackPanel>
-                                <Border Background="#252A38" CornerRadius="8" Padding="10,6" VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                                    <TextBlock Text="BUKA / SCAN 🔍" Foreground="#CBD5E1" FontSize="11" FontWeight="SemiBold"/>
+                                <Border Background="#4DD0E1" CornerRadius="8" Padding="10,6" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                                    <TextBlock Text="MAIN SEKARANG ▶" Foreground="#0A0D14" FontSize="11" FontWeight="Bold"/>
                                 </Border>
                             </Grid>
                         </Border>

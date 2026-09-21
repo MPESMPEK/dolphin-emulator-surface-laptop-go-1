@@ -196,7 +196,7 @@ namespace TouchJoystick
             try
             {
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                string[] engineFolders = { "Dolphin-x64", "PCSX2-x64", "DuckStation-x64" };
+                string[] engineFolders = { "Dolphin-x64", "PCSX2-x64", "DuckStation-x64", "PPSSPP-x64" };
 
                 foreach (var folder in engineFolders)
                 {
@@ -335,12 +335,29 @@ namespace TouchJoystick
 
         private void LaunchPpsspp_Click(object sender, MouseButtonEventArgs e)
         {
-            TryLaunchEmulator("PPSSPP", "PPSSPPWindows64.exe", ControllerLayout.PlayStation);
-        }
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string parentDir = Directory.GetParent(baseDir)?.FullName ?? baseDir;
+            string docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-        private void LaunchRetroArch_Click(object sender, MouseButtonEventArgs e)
-        {
-            TryLaunchEmulator("RetroArch", "retroarch.exe", ControllerLayout.WiiRemote);
+            var candidates = new[]
+            {
+                System.IO.Path.Combine(baseDir, "PPSSPPWindows64.exe"),
+                System.IO.Path.Combine(baseDir, "PPSSPP-x64", "PPSSPPWindows64.exe"),
+                System.IO.Path.Combine(parentDir, "PPSSPP-x64", "PPSSPPWindows64.exe"),
+                System.IO.Path.Combine(docs, "Dolphin-Surface-Go", "PPSSPP-x64", "PPSSPPWindows64.exe"),
+                System.IO.Path.Combine(docs, "11", "PPSSPP-x64", "PPSSPPWindows64.exe")
+            };
+
+            foreach (var path in candidates)
+            {
+                if (File.Exists(path))
+                {
+                    StartEmulatorProcess(path, ControllerLayout.PlayStation);
+                    return;
+                }
+            }
+
+            TryLaunchEmulator("PPSSPP", "PPSSPPWindows64.exe", ControllerLayout.PlayStation);
         }
 
         private void TryLaunchEmulator(string name, string exeName, ControllerLayout defaultLayout)

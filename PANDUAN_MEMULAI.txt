@@ -13,6 +13,8 @@ EMULATOR YANG SUDAH TERPASANG & SIAP MAIN:
    - Preset dari MPESMPEK/pcsx2-surface-laptop-go-1 (Direct3D 12, Rasio 3:2, VU1 multi-thread, FastBoot)
 3. 🦆 DuckStation (Sony PlayStation 1)
    - Preset dari MPESMPEK/ps1-emu-surface (AVX2, PGXP geometri presisi, Direct3D 12, Rasio 3:2)
+4. 🏎️ PPSSPP (Sony PlayStation Portable - PSP)
+   - Preset dari MPESMPEK/ppsspp-avx2 (AVX2 FMA 256-bit, Direct3D 11/Vulkan, Internal Res 2x 3:2, 60 FPS)
 
 CARA MEMULAI:
 1. Jalankan "Surface-Gaming-Suite.exe".
@@ -20,6 +22,7 @@ CARA MEMULAI:
    - Dolphin     : GameCube & Wii (joystick GameCube otomatis aktif)
    - PCSX2       : PlayStation 2 (joystick PlayStation otomatis aktif)
    - DuckStation : PlayStation 1 (joystick PlayStation otomatis aktif)
+   - PPSSPP      : PlayStation Portable (joystick PlayStation otomatis aktif)
 3. Kontrol joystick layar sentuh akan otomatis aktif sesuai emulator yang dipilih!
 
 LOKASI MENARUH GAME:
@@ -28,6 +31,8 @@ LOKASI MENARUH GAME:
   (Untuk PS2, taruh file BIOS .bin Anda di folder "PCSX2-x64\bios\")
 - Game PlayStation 1: Masukkan file .chd / .bin / .cue / .pbp ke folder "DuckStation-x64\Games\"
   (Untuk PS1, taruh file BIOS SCPH1001.bin di folder "DuckStation-x64\bios\")
+- Game PSP (PlayStation Portable): Masukkan file .iso / .cso ke folder "PPSSPP-x64\Games\"
+  (Atau ke folder "PPSSPP-x64\memstick\PSP\GAME\")
 
 KONTROL LAYAR SENTUH & GAMEBAR:
 - Sentuh tombol "[ 🎮 Kontrol ]" di bilah atas untuk menyembunyikan/menampilkan tombol sentuh.

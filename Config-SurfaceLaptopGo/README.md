@@ -1,4 +1,4 @@
-# Surface Laptop Go 1 Configuration Presets
+﻿# Surface Laptop Go 1 Configuration Presets
 
 Preset konfigurasi siap pakai yang dioptimalkan untuk Intel Core i5 Ice Lake (Iris Plus / UHD Graphics) pada Surface Laptop Go 1.
 
@@ -30,3 +30,12 @@ Salin berkas `DuckStation-settings.ini` ke `DuckStation-x64/settings.ini`:
   - `PGXPEnable = true` (Koreksi geometri 3D presisi)
   - `PGXPTextureCorrection = true` (Koreksi tekstur goyang khas PS1)
   - `EnableFastBoot = true`
+
+### 4. PPSSPP (Sony PlayStation Portable - PSP)
+Preset dari `MPESMPEK/ppsspp-avx2`, salin ke `PPSSPP-x64/memstick/PSP/SYSTEM/ppsspp.ini`:
+* `ppsspp.ini`:
+  - `GraphicsBackend = Direct3D 11 / Vulkan`
+  - `InternalResolution = 2 (2x Native PSP ~ 960x544)`
+  - `FastMemoryAccess = True`
+  - `SeparateSASThread = True`
+  - `DisplayAspectRatio = 1`
