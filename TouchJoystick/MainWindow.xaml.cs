@@ -279,6 +279,28 @@ namespace TouchJoystick
 
         private void LaunchDuckStation_Click(object sender, MouseButtonEventArgs e)
         {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string parentDir = Directory.GetParent(baseDir)?.FullName ?? baseDir;
+            string docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            var candidates = new[]
+            {
+                System.IO.Path.Combine(baseDir, "duckstation-qt-x64-ReleaseLTCG.exe"),
+                System.IO.Path.Combine(baseDir, "DuckStation-x64", "duckstation-qt-x64-ReleaseLTCG.exe"),
+                System.IO.Path.Combine(parentDir, "DuckStation-x64", "duckstation-qt-x64-ReleaseLTCG.exe"),
+                System.IO.Path.Combine(docs, "Dolphin-Surface-Go", "DuckStation-x64", "duckstation-qt-x64-ReleaseLTCG.exe"),
+                System.IO.Path.Combine(docs, "11", "DuckStation-x64", "duckstation-qt-x64-ReleaseLTCG.exe")
+            };
+
+            foreach (var path in candidates)
+            {
+                if (File.Exists(path))
+                {
+                    StartEmulatorProcess(path, ControllerLayout.PlayStation);
+                    return;
+                }
+            }
+
             TryLaunchEmulator("DuckStation", "duckstation-qt-x64-ReleaseLTCG.exe", ControllerLayout.PlayStation);
         }
 
@@ -461,7 +483,7 @@ namespace TouchJoystick
 
         private void SliderOpacity_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (TxtOpacity == null) return;
+            if (TxtOpacity == null || ControllerCanvas == null) return;
             _globalOpacity = e.NewValue;
             TxtOpacity.Text = $"Transparansi Tombol: {(int)(_globalOpacity * 100)}%";
             RenderCurrentLayout();
@@ -469,7 +491,7 @@ namespace TouchJoystick
 
         private void SliderScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (TxtScale == null) return;
+            if (TxtScale == null || ControllerCanvas == null) return;
             _globalScale = e.NewValue;
             TxtScale.Text = $"Ukuran Tombol: {(int)(_globalScale * 100)}%";
             RenderCurrentLayout();
@@ -477,6 +499,7 @@ namespace TouchJoystick
 
         private void RenderCurrentLayout()
         {
+            if (ControllerCanvas == null) return;
             ControllerCanvas.Children.Clear();
             _activeButtons.Clear();
 
@@ -1012,6 +1035,8 @@ namespace TouchJoystick
 
         private void UpdateBatteryStatus()
         {
+            if (HubBatteryText == null || TxtOverlayBattery == null || HubBatteryPill == null) return;
+
             if (GetSystemPowerStatus(out SYSTEM_POWER_STATUS status))
             {
                 bool isAc = status.ACLineStatus == 1;

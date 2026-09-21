@@ -1,0 +1,39 @@
+================================================================================
+       SURFACE GAMING SUITE (Edisi Khusus Layar Sentuh & Intel UHD)
+================================================================================
+
+Selamat datang di Surface Gaming Suite!
+Paket all-in-one ini sudah dikonfigurasi dan dioptimalkan secara spesifik untuk hardware
+Microsoft Surface Laptop Go 1 dan laptop modern dengan iGPU Intel.
+
+EMULATOR YANG SUDAH TERPASANG & SIAP MAIN:
+1. 🐬 Dolphin (Nintendo GameCube & Wii)
+   - Preset Direct3D 12, AVX2, Ubershaders Mode 2, Rasio Layar Asli 3:2 (1536x1024)
+2. 🎮 PCSX2 (Sony PlayStation 2)
+   - Preset dari MPESMPEK/pcsx2-surface-laptop-go-1 (Direct3D 12, Rasio 3:2, VU1 multi-thread, FastBoot)
+3. 🦆 DuckStation (Sony PlayStation 1)
+   - Preset dari MPESMPEK/ps1-emu-surface (AVX2, PGXP geometri presisi, Direct3D 12, Rasio 3:2)
+
+CARA MEMULAI:
+1. Jalankan "Surface-Gaming-Suite.exe".
+2. Pilih emulator yang ingin dimainkan pada kartu Hub:
+   - Dolphin     : GameCube & Wii (joystick GameCube otomatis aktif)
+   - PCSX2       : PlayStation 2 (joystick PlayStation otomatis aktif)
+   - DuckStation : PlayStation 1 (joystick PlayStation otomatis aktif)
+3. Kontrol joystick layar sentuh akan otomatis aktif sesuai emulator yang dipilih!
+
+LOKASI MENARUH GAME:
+- Game GameCube/Wii : Masukkan file .rvz / .iso ke folder "Dolphin-x64\Games\"
+- Game PlayStation 2: Masukkan file .chd / .iso ke folder "PCSX2-x64\Games\"
+  (Untuk PS2, taruh file BIOS .bin Anda di folder "PCSX2-x64\bios\")
+- Game PlayStation 1: Masukkan file .chd / .bin / .cue / .pbp ke folder "DuckStation-x64\Games\"
+  (Untuk PS1, taruh file BIOS SCPH1001.bin di folder "DuckStation-x64\bios\")
+
+KONTROL LAYAR SENTUH & GAMEBAR:
+- Sentuh tombol "[ 🎮 Kontrol ]" di bilah atas untuk menyembunyikan/menampilkan tombol sentuh.
+- Sentuh "💾 Simpan (F1)" untuk Save State instan.
+- Sentuh "📂 Muat (F8)" untuk Load State instan.
+- Sentuh "⏩ Turbo" untuk mempercepat adegan (Fast-Forward).
+- Sentuh "⚙ Menu" untuk mengubah layout tombol (GameCube / Wii / PlayStation)
+  dan mengatur transparansi serta ukuran tombol sentuh.
+================================================================================
