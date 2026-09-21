@@ -179,6 +179,9 @@ namespace TouchJoystick
             // Setup Battery Monitor
             InitBatteryMonitor();
 
+            // Auto-hide backend emulator engine executables so Surface Gaming Suite is the only visible launcher
+            HideEngineExecutables();
+
             // Center GameBar
             double screenW = SystemParameters.PrimaryScreenWidth;
             Canvas.SetLeft(GameBar, (screenW - 550) / 2);
@@ -186,6 +189,32 @@ namespace TouchJoystick
 
             // Default view is Hub
             SwitchToHub();
+        }
+
+        private void HideEngineExecutables()
+        {
+            try
+            {
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string[] engineFolders = { "Dolphin-x64", "PCSX2-x64", "DuckStation-x64" };
+
+                foreach (var folder in engineFolders)
+                {
+                    string dir = System.IO.Path.Combine(baseDir, folder);
+                    if (Directory.Exists(dir))
+                    {
+                        foreach (var exe in Directory.GetFiles(dir, "*.exe", SearchOption.AllDirectories))
+                        {
+                            var attr = File.GetAttributes(exe);
+                            if ((attr & FileAttributes.Hidden) == 0)
+                            {
+                                File.SetAttributes(exe, attr | FileAttributes.Hidden);
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
         }
 
         // ══════════════════════════════════════════════════════
