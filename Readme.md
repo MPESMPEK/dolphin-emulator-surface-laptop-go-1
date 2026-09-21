@@ -1,12 +1,12 @@
 # Surface Gaming Suite - Surface Laptop Go 1 Edition
 
-[![Version](https://img.shields.io/badge/Version-v2.1.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
+[![Version](https://img.shields.io/badge/Version-v2.2.0-blue.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-0078D6.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)
 [![Hardware](https://img.shields.io/badge/Target-Surface%20Laptop%20Go%201-success.svg)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1)
 [![License](https://img.shields.io/badge/License-GPL%20v2%2B%20%2F%20v3-orange.svg)](COPYING)
 
-> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v2.1.0-surface-go)**  
-> Paket emulator terpadu siap main (Dolphin GameCube/Wii + PCSX2 PlayStation 2) yang sudah terkonfigurasi optimal untuk Surface Laptop Go 1. Cukup ekstrak dan langsung mainkan tanpa perlu instalasi tambahan.
+> **[Unduh Build Siap Main (Windows x64 ZIP)](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases/tag/v2.2.0-surface-go)**  
+> Paket emulator terpadu all-in-one siap main (Dolphin GameCube/Wii + PCSX2 PlayStation 2 + DuckStation PlayStation 1) yang sudah terkonfigurasi optimal untuk Surface Laptop Go 1. Cukup ekstrak dan langsung mainkan tanpa perlu instalasi tambahan.
 
 ---
 
@@ -129,15 +129,21 @@ Preset konfigurasi tersimpan di folder [Config-SurfaceLaptopGo/](Config-SurfaceL
 * **[NEW] Auto-Switch Controller**: Membuka PCSX2 otomatis mengaktifkan joystick layar sentuh dengan layout stik PlayStation (△, □, ✕, ○, L1, R1).
 * **[SHORTCUT] Pintasan Desktop**: Ikon desktop diperbarui menjadi **"Surface Gaming Suite"**.
 
+### [v2.2.0] - 2026-09-21 (Integrasi Emulator PS1: DuckStation Surface AVX2)
+* **[NEW] Integrasi Bundled DuckStation (PS1)**: Mengintegrasikan emulator PlayStation 1 (**DuckStation**) dengan kalibrasi dan preset resmi dari repositori fork [`MPESMPEK/ps1-emu-surface`](https://github.com/MPESMPEK/ps1-emu-surface) (AVX2, Direct3D 12, PGXP geometri & koreksi tekstur presisi, Custom Aspect Ratio 3:2, dan mode portabel).
+* **[NEW] Auto-Switch Controller ke PS1**: Membuka DuckStation di Hub otomatis mengaktifkan joystick layar sentuh dengan layout stik PlayStation (△, □, ✕, ○, L1, R1).
+* **[PACKAGE] Paket All-in-One Makin Lengkap**: Kini dalam 1 paket portabel ZIP sudah terpasang 3 emulator lengkap (Dolphin + PCSX2 + DuckStation) tanpa perlu konfigurasi terpisah.
+
 ---
 
 ## 5. Skema Arsitektur Sistem
 
 ```mermaid
 flowchart TD
-    Launcher["Surface-Gaming-Suite.exe (v2.1.0 - 187 KB)"] --> Hub["Multi-Emulator Touch Hub UI\n(Dolphin, PCSX2, DuckStation, PPSSPP, RetroArch)"]
+    Launcher["Surface-Gaming-Suite.exe (187 KB)"] --> Hub["Multi-Emulator Touch Hub UI\n(Dolphin, PCSX2, DuckStation, PPSSPP, RetroArch)"]
     Hub --> Dolphin["Dolphin Engine (GameCube/Wii 3:2 D3D12)"]
     Hub --> PCSX2["PCSX2 Engine (PlayStation 2 3:2 D3D12)"]
+    Hub --> DuckStation["DuckStation Engine (PlayStation 1 3:2 AVX2 D3D12)"]
     Launcher --> Overlay["Unified On-Screen Touch Layer (Multi-Touch)"]
     Overlay --> QuickMenu["In-Game Quick Touch GameBar\n(Save F1 / Load F8 / Turbo Tab / Sliders)"]
     Overlay --> Controller["Dynamic Controller Layouts\n(GameCube / Wii Remote / PlayStation)"]
@@ -149,12 +155,13 @@ flowchart TD
 ## 6. Cara Menggunakan Build Rilis
 
 1. Buka halaman **[Releases](https://github.com/dimas3913-droid/dolphin-emulator-surface-laptop-go-1/releases)**.
-2. Unduh berkas **`Surface-Gaming-Suite-Windows-x64.zip`** (atau download langsung file `Surface-Gaming-Suite.exe`).
+2. Unduh berkas **`Surface-Gaming-Suite-Portable-v2.2.0-Windows-x64.zip`** (atau download langsung file `Surface-Gaming-Suite.exe`).
 3. Ekstrak file ZIP ke folder mana saja di laptop Anda (misal: di folder `Documents` atau `Desktop`).
 4. Jalankan **`Surface-Gaming-Suite.exe`** (atau klik shortcut **"Surface Gaming Suite"** di Desktop).
 5. Pada menu Hub yang muncul:
    - Tap **Dolphin** untuk bermain game GameCube / Wii (joystick GameCube otomatis aktif).
    - Tap **PCSX2** untuk bermain game PlayStation 2 (joystick PlayStation otomatis aktif).
+   - Tap **DuckStation** untuk bermain game PlayStation 1 (joystick PlayStation otomatis aktif).
 6. Saat game berjalan:
    - Mainkan langsung menggunakan kontrol layar sentuh multi-touch.
    - Tap tombol **`💾 Simpan (F1)`** atau **`📂 Muat (F8)`** di GameBar atas untuk save/load instan.
